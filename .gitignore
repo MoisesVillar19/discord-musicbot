@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual env
+venv/
+.venv/
+env/
+ENV/
+
+# Secrets - NUNCA subir el token real
+.env
+*.token
+
+# FFmpeg binarios locales (~300MB, no subir a GitHub)
+bin/
+*.exe
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# yt-dlp cache
+*.part
+*.ytdl
