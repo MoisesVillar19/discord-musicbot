@@ -71,6 +71,26 @@ class SearchTest(unittest.TestCase):
     def test_resolve_sin_url(self):
         self.assertEqual(run(search.resolve_stream_url("")), (None, None))
 
+    def test_playlist_flat_url_no_reproducible(self):
+        # Entradas flat: url es el id (no streamable) -> se descarta,
+        # webpage_url se conserva para resolver al reproducir.
+        flat = {"title": "Flat", "url": "abc123", "webpage_url": "http://page/abc",
+                "duration": None, "uploader": None, "thumbnail": None}
+        info = {"entries": [flat]}
+        with patch.object(search, "_extract", return_value=info) as m:
+            tracks, total, unav = run(
+                search.search_ytdlp("https://youtube.com/playlist?list=x")
+            )
+        self.assertEqual(m.call_args[0][1].get("extract_flat"), "in_playlist")
+        self.assertEqual(total, 1)
+        self.assertIsNone(tracks[0]["url"])
+        self.assertEqual(tracks[0]["webpage_url"], "http://page/abc")
+
+    def test_video_unico_sin_flat(self):
+        with patch.object(search, "_extract", return_value=_entry("V")) as m:
+            run(search.search_ytdlp("https://youtu.be/abc"))
+        self.assertNotIn("extract_flat", m.call_args[0][1])
+
 
 if __name__ == "__main__":
     unittest.main()

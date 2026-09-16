@@ -121,6 +121,10 @@ async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None
 
     if not audio_url:
         log.warning("Sin URL reproducible para '%s', saltando...", title)
+        try:
+            await channel.send(f"⚠️ Salté **{title}** (no disponible).")
+        except Exception:
+            pass
         if queue:
             await play_next_song(voice_client, guild_id, channel, bot_loop)
         else:

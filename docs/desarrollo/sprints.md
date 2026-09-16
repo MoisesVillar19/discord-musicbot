@@ -45,7 +45,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] CB-08: validar FFmpeg al arrancar con mensaje legible.
 - **Hecho cuando:** CU-05/CU-06/CB-05/CB-09 en verde bajo ráfagas simultáneas.
 
-## Sprint 3 — Playlists rápidas y válidas 🔴 SIGUIENTE
+## Sprint 3 — Playlists rápidas y válidas ✅ HECHO
 **Objetivo:** la 1ª canción suena ya; entradas inválidas → mensaje, nunca crash.
 
 - [ ] A-10 `extract_flat="in_playlist"` solo en rama playlist; resolver audio al
@@ -57,7 +57,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] Documentar límites reales: `limit` máx, timeout de extracción, playlists gigantes.
 - **Hecho cuando:** CU-03 con playlist 100+ suena la 1ª en segundos + CB-01/CB-02/CB-10 en verde.
 
-## Sprint 4 — Experiencia
+## Sprint 4 — Experiencia 🔴 SIGUIENTE
 **Objetivo:** lo visible que pedían los docs iniciales. Todo depende de S1–S2 ya hechos.
 
 - [ ] B-01 `/nowplaying` (embed con datos de `NOW_PLAYING`).

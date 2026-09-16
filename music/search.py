@@ -7,6 +7,8 @@ Soporta:
 import yt_dlp
 import asyncio
 
+from utils.validators import YOUTUBE_PLAYLIST, classify
+
 YTDLP_BASE_OPTS = {
     "format": "bestaudio[abr<=96]/bestaudio",
     "quiet": True,
@@ -29,17 +31,20 @@ def _is_url(query: str) -> bool:
     return q.startswith("http://") or q.startswith("https://") or q.startswith("ytsearch")
 
 
-def _track_from_entry(e: dict) -> dict | None:
+def _track_from_entry(e: dict, flat: bool = False) -> dict | None:
     """Normaliza una entrada de yt-dlp al formato Track (ver docs/desarrollo/diccionario.md).
 
-    `url` puede ser None (entradas flat o sin extraer): se resuelve al
-    reproducir con resolve_stream_url(). `webpage_url` es la identidad estable.
+    Con flat=True (extract_flat de playlist) la entrada solo trae metadatos
+    ligeros: `url` NO es reproducible (suele ser el id) y se descarta; el audio
+    se resuelve al reproducir con resolve_stream_url(). `webpage_url` es la
+    identidad estable.
     """
     if not e:
         return None
+    url = None if flat else e.get("url")
     return {
         "title": e.get("title") or "Untitled",
-        "url": e.get("url"),  # puede ser None -> se resuelve al reproducir
+        "url": url,  # puede ser None -> se resuelve al reproducir
         "webpage_url": e.get("webpage_url"),
         "duration": e.get("duration"),
         "uploader": e.get("uploader"),
@@ -60,6 +65,12 @@ async def search_ytdlp(query: str, max_tracks: int = 50, start_index: int = 0):
     is_url = _is_url(query)
     # Solo las URLs pueden ser playlists. El texto siempre es 1 resultado.
     opts["noplaylist"] = not is_url
+    # Playlists en modo ligero: solo metadatos (título + webpage_url).
+    # La 1ª canción suena sin esperar el análisis completo; el audio de cada
+    # track se resuelve al reproducir (ver ADR-002). Solo URLs de playlist;
+    # videos únicos y búsquedas siguen con extracción completa.
+    if classify(query) == YOUTUBE_PLAYLIST:
+        opts["extract_flat"] = "in_playlist"
 
     # Texto libre -> forzar búsqueda de 1 resultado para respuesta rápida.
     if not is_url:
@@ -87,13 +98,13 @@ async def search_ytdlp(query: str, max_tracks: int = 50, start_index: int = 0):
                     return [t], 1, 0
             return [], 0, 0
 
-        # Playlist real: paginar con start/limit
+        # Playlist real (entradas flat): paginar con start/limit
         total = len(entries)
         sliced = entries[start_index:start_index + max_tracks]
         unavailable = 0
         for e in sliced:
-            t = _track_from_entry(e)
-            if t is None or (not t["url"] and not t["webpage_url"]):
+            t = _track_from_entry(e, flat=True)
+            if t is None or not t["webpage_url"]:
                 unavailable += 1
                 continue
             tracks.append(t)

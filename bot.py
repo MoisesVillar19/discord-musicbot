@@ -162,7 +162,13 @@ async def play(
     limit = min(max(1, limit), 100)
     start_index = start - 1
 
-    voice_channel = interaction.user.voice.channel
+    # Validar antes de conectarse: URLs no-YouTube se rechazan sin entrar a voz.
+    from utils.validators import UNSUPPORTED_URL, classify, unsupported_message
+
+    if classify(song_query) == UNSUPPORTED_URL:
+        await interaction.followup.send(unsupported_message(), ephemeral=True)
+        return
+
     vc = await voice_mgr.ensure_voice(interaction)
 
     from music.search import search_ytdlp

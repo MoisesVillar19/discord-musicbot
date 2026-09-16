@@ -75,4 +75,14 @@ Alternativa: doble clic en `start_bot.bat`.
 | No suena / error FFmpeg | Sin FFmpeg | Instala FFmpeg o pon `bin/ffmpeg/ffmpeg.exe` |
 | `/play texto` dice "No se encontraron resultados" | yt-dlp desactualizado o bloqueo de YouTube | `pip install -U yt-dlp`, reintenta; prueba con URL directa |
 | Comandos slash no aparecen | Falta `applications.commands` o sync pendiente | Reinvita con ese scope, espera unos minutos, reinicia Discord con Ctrl+R |
-| `ValueError: too many values to unpack` | Versión vieja del bot | Actualiza: este bug ya está corregido (cola de 3 tuplas) |
+| `ValueError: too many values to unpack` | Versión vieja del bot | Actualiza: este bug ya está corregido (cola `Track` dict desde Sprint 1) |
+| `No supported JavaScript runtime` (yt-dlp) | Falta runtime JS en la máquina | Instala Node.js LTS (https://nodejs.org) y reintenta |
+| Enlaces de Instagram/TikTok/Facebook | Solo se soporta YouTube | El bot responde `❌ No puedo reproducir este enlace` sin caerse |
+
+## 7. Límites conocidos
+
+- `/play` acepta texto, video/shorts de YouTube o playlist; resto de URLs se rechazan.
+- Playlists: `start` (desde qué #) y `limit` (máx 100 por tanda). Las playlists se
+  listan en modo ligero y cada audio se resuelve al sonar, así que la 1ª canción
+  no espera el análisis completo (Sprint 3).
+- Si un video está privado/eliminado/sin audio, se avisa con `⚠️ Salté …` y sigue la cola.
