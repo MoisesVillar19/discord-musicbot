@@ -16,6 +16,7 @@
 | S2 Voz robusta | `core/voice.py`, locks, validación canal, `/disconnect`, autodisconnect vacío | 🔴 |
 | S3 Playlists rápidas | `extract_flat`, validación URLs, JS runtime, límites documentados | 🔴 |
 | S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | 🔴 |
+| S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | 🔴 |
 | Futuro | multi-resultados, `/lyrics`, permisos DJ, historial, nube, Docker, CI | 🔬/🔴 |
 
 ## Backlog
@@ -66,6 +67,24 @@
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
 | C-08 | Historial por guild | 🔴 | Futuro | Tras `NOW_PLAYING` |
 | C-09 | Hosting nube 24/7 | 🔴 | Futuro | Decisión de costo; local hasta S4 |
+
+### D. Alters configurables + panel local (solo admin local, sin web)
+
+> Decisión: alters **solo slash** (consistente con los 7 comandos actuales),
+> panel **app de escritorio tkinter** (cero dependencias, un solo administrador),
+> nombres reales **solo en local** (`aliases.json` en `.gitignore`).
+> Discord no tiene aliases nativos: cada alter es un slash command registrado
+> que apunta a la misma lógica. Un bot = un proceso = N servidores;
+> multi-instancia solo para bots distintos (ver `arquitectura.md` §5).
+
+| ID | Ítem | Estado | Depende de | Sprint | Notas |
+|---|---|---|---|---|---|
+| D-01 | Extraer lógica compartida (`_do_play`, `_do_skip`, …) o cogs | 🔴 | S4 (cogs) o fallback | S5 | Prerrequisito: canonical + alters comparten callback |
+| D-02 | `aliases.json` local + `aliases.example.json` + loader con validación | 🔴 | D-01 | S5 | Regex `^[\w-]{1,32}$`, minúsculas, sin colisiones, máx ~10/comando |
+| D-03 | Registro dinámico de slash por alter + `/help` dinámico | 🔴 | D-02 | S5 | Límite 100 comandos globales; sobra para alters |
+| D-04 | `GUILD_ID` opcional para sync instantáneo en desarrollo | 🔴 | D-03 | S5 | Los comandos globales tardan ~1h en propagar |
+| D-05 | Panel tkinter: perfiles, start/stop/restart, editor alters, editor `.env`, logs, re-sync | 🔴 | D-03 | S5 | Un perfil = un token; 1 perfil basta para N servidores |
+| D-06 | `panel.bat` + reutilizar `icono.ico` + manual del panel | 🔴 | D-05 | S5 | — |
 
 ## Qué se declara obsoleto (no entra al roadmap)
 

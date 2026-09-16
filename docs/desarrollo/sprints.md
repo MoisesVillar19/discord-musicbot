@@ -65,6 +65,25 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] B-07 Alias (`/rolita`…) — pocos, documentados; B-08 trolls si apetece.
 - **Hecho cuando:** CU-07 con 150 canciones navegable + B-04–B-06 con validación de rango.
 
+## Sprint 5 — Alters configurables + panel local
+**Objetivo:** nombres propios (ej. `/jugar` → `play`) editables sin tocar código,
+y arranque/configuración desde una app de escritorio local.
+Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
+
+- [ ] D-01 Extraer callbacks compartidos (vía cogs S4 o `_do_*` en `bot.py`).
+- [ ] D-02 `aliases.json` (local, gitignored) + `aliases.example.json` + loader con
+      validación y errores legibles al arrancar.
+- [ ] D-03 Registro dinámico: un `tree.command` por alter apuntando al callback
+      canónico; `/help` lista alters activos.
+- [ ] D-04 `GUILD_ID` opcional en `.env` → sync por servidor (instantáneo) para
+      probar renombres sin esperar la propagación global (~1h).
+- [ ] D-05 Panel `panel/` en tkinter (stdlib): perfiles (un perfil = un token),
+      start/stop/restart del subproceso, editor de alters, editor `.env`
+      (token enmascarado), visor de logs, botón re-sync. Comunicación solo por
+      archivos; cambiar alters = guardar + reiniciar desde el panel.
+- [ ] D-06 `panel.bat` + `icono.ico` + manual del panel en `docs/manuales/`.
+- **Hecho cuando:** CU-09/CB-11–CB-14 en verde + bot arranca y se opera solo desde el panel.
+
 ## Futuro (sin sprint asignado)
 - B-09 multi-resultados con select · B-10 `/lyrics` (**spike previo**: auth/límites/ToS).
 - C-05 CI (ruff+tests) · C-06 Docker · C-07 permisos DJ · C-08 historial · C-09 nube 24/7.

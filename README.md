@@ -54,8 +54,8 @@ MusicBot/
 
 ## 🗺️ Roadmap
 
-Estado y próximos pasos (sprints 1–4: `Track` dict → `core/voice.py` → playlists
-rápidas → experiencia):
+Estado y próximos pasos (sprints 1–5: `Track` dict → `core/voice.py` → playlists
+rápidas → experiencia → alters + panel local):
 
 - [`docs/desarrollo/roadmap.md`](docs/desarrollo/roadmap.md)
 - [`docs/desarrollo/sprints.md`](docs/desarrollo/sprints.md)

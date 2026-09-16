@@ -120,3 +120,38 @@ bot.py  ── slash handlers (/play, /pause, /resume, /skip, /stop, /queue, /he
 | 2 | `core/voice.py` (mover tal cual + locks + validación canal + `/disconnect`) | `music/search.py` API, formato `Track` | handlers slash conservan firma y mensajes |
 | 3 | `extract_flat` en playlists + validación URLs + límites | reproducción de video único/texto | `resolve_stream_url()` queda como fallback |
 | 4 | Features UI (`nowplaying`, paginación, shuffle/remove/move) | núcleo voz/cola | cada comando en su cog, reversible por separado |
+| 5 | Alters (registro dinámico) + `panel/` tkinter | lógica de comandos (solo se añade registro) | alters desactivables borrando `aliases.json` |
+
+## 5. Alters + panel local (Sprint 5)
+
+### Por qué así
+Discord no soporta aliases en slash commands: cada nombre visible es un
+`app_commands.Command` propio. El diseño es entonces: **una lógica, N registros**.
+
+```text
+aliases.json ──loader+validación──▶ [(canónico, [alters])] ──▶ bot.tree
+        play ──▶ /play ──┐
+                 /jugar ─┤──▶ _do_play() (o cog Play)
+                 /rolita ┘
+```
+
+### ADR-005 — Alters solo slash, config local
+- **Contexto:** se quiere `/[nombre de amigo]` como chiste (jugar:play) sin
+  bifurcar lógica, y que cualquiera que clone el repo ponga los suyos.
+- **Decisión:** alters solo slash; `aliases.json` local (gitignored) +
+  `aliases.example.json` versionado; validación estricta al arrancar
+  (minúsculas, `^[\w-]{1,32}$`, sin colisiones, máx ~10/comando).
+- **Consecuencia:** cambiar un alter = editar + reiniciar + re-sync
+  (global ~1h; con `GUILD_ID` en `.env`, sync por servidor instantáneo).
+
+### ADR-006 — Panel desktop tkinter, sin web
+- **Contexto:** un solo administrador, proyecto personal de bajo costo.
+- **Decisión:** app de escritorio con `tkinter` (stdlib, cero dependencias).
+  Un **perfil** = un token + su `aliases.json` + su `.env`; el panel gestiona
+  un subproceso por perfil (start/stop/restart), editor de alters, editor
+  `.env` (token enmascarado), visor de logs y botón re-sync. Sin IPC:
+  panel y bot solo comparten archivos.
+- **Consecuencia:** un perfil basta para N servidores (un token = un proceso).
+  Dos procesos con el mismo token no coexisten (Discord desconecta al segundo);
+  el panel lo advierte (CB-14). Multi-instancia real = varios perfiles con
+  tokens distintos.

@@ -44,6 +44,24 @@ puede re-resolverse con `resolve_stream_url(webpage_url)`.
 |---|---|---|---|
 | `DISCORD_TOKEN` | Sí | — | `config.TOKEN`; sin ella el bot aborta con mensaje claro |
 | `BOT_NAME` | No | `"MusicBot"` | Nombre visible en `/help` y embeds (ADR-004) |
+| `GUILD_ID` | No | — | Servidor de desarrollo: sync de slash instantáneo (S5, D-04) |
+
+## 3b. Alters (`aliases.json`, S5)
+
+Archivo **local** (gitignored; el repo trae `aliases.example.json`).
+Clave = comando canónico, valor = lista de alters:
+
+```json
+{
+  "play": ["jugar", "rolita"],
+  "skip": ["salta"],
+  "queue": ["cola"]
+}
+```
+
+Reglas: minúsculas, `^[\w-]{1,32}$` (límite de Discord), sin colisionar con
+canónicos ni entre sí, máx ~10 por comando. Sin el archivo (o `{}`) el bot
+registra solo los 7 canónicos.
 
 ## 4. Opciones yt-dlp
 

@@ -49,6 +49,12 @@
 - **Esperado:** `🎧 Comandos de DJ Local`.
 - **S0:** ✅.
 
+## CU-09 Alters configurables (D-02, D-03)
+- **Pre:** `aliases.json` con `{"play": ["jugar"], "skip": ["salta"]}`, bot sincronizado.
+- **Pasos:** `/jugar song_query:…` → suena; `/salta` → avanza la cola; `/help` muestra los alters.
+- **Esperado:** cada alter ejecuta exactamente la misma lógica que su canónico.
+- **Aceptación S5:** CU-01–CU-07 pasan igual invocados por alter o por canónico.
+
 ## Casos borde (todos deben terminar en mensaje, nunca en crash)
 
 | # | Caso | Esperado | S0 |
@@ -63,6 +69,10 @@
 | CB-08 | Sin FFmpeg (ni `bin/` ni PATH) | Error legible, no traceback crudo | 🟡 (S2: validar al arrancar) |
 | CB-09 | `/stop` y fin de canción a la vez | Una sola desconexión, cola limpia | 🟡 (S2 A-08) |
 | CB-10 | Texto que parece URL (`youtube.com sin https`) | Se trata como búsqueda o se valida y avisa | 🔴 (S3 A-11) |
+| CB-11 | `aliases.json` con nombre inválido (`Mi Rola!`, mayúsculas) | Arranque aborta con error legible, sin traceback crudo | 🔴 (S5 D-02) |
+| CB-12 | Alter que colisiona (`"skip": ["play"]`) | Arranque aborta indicando la colisión | 🔴 (S5 D-02) |
+| CB-13 | Renombrar un alter y re-sincronizar | Comando viejo desaparece, nuevo aparece (nota: global ~1h, guild instantáneo) | 🔴 (S5 D-04) |
+| CB-14 | Arrancar segunda instancia con el mismo token | Segundo proceso no conecta / mensaje claro en el panel | 🔴 (S5 D-05) |
 
 ## Matriz de prueba manual (pre-push de cada sprint)
 
