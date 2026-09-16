@@ -158,8 +158,10 @@ async def play(
 
     queue = get_queue(str(interaction.guild_id))
 
+    requested_by = interaction.user.display_name
     for t in tracks:
-        queue.append((t["url"], t["title"], t["webpage_url"]))
+        t["requested_by"] = requested_by
+        queue.append(t)
 
     # 🎁 Mensaje bonus
     if total > 1:
@@ -209,14 +211,9 @@ async def queue(interaction: discord.Interaction):
         return
 
     message = "🎶 **Cola actual:**\n"
-    for idx, item in enumerate(q, start=1):
-        # La cola guarda tuplas (url, title, webpage_url)
-        try:
-            _, title, _web = item
-        except ValueError:
-            # Compatibilidad con colas viejas de 2 elementos
-            _, title = item
-        message += f"{idx}. {title}\n"
+    for idx, track in enumerate(q, start=1):
+        # La cola guarda Track (dict)
+        message += f"{idx}. {track.get('title', 'Untitled')}\n"
         # Límite de Discord: 2000 caracteres
         if len(message) > 1800:
             message += f"... y {len(q) - idx} más.\n"
@@ -230,12 +227,10 @@ async def play_next_song(voice_client, guild_id, channel):
     queue = get_queue(guild_id)
 
     if queue:
-        try:
-            audio_url, title, webpage_url = queue.popleft()
-        except ValueError:
-            # Compatibilidad: tupla vieja de 2 elementos
-            audio_url, title = queue.popleft()
-            webpage_url = None
+        track = queue.popleft()
+        audio_url = track.get("url")
+        title = track.get("title") or "Untitled"
+        webpage_url = track.get("webpage_url")
 
         # Si yt-dlp no dio URL directa (playlist/flat), resolverla ahora
         if not audio_url and webpage_url:

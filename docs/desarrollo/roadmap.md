@@ -12,7 +12,7 @@
 | Hito | Contenido | Estado |
 |---|---|---|
 | S0 Estabilización | Cola 3-tuplas, `ytsearch` texto, `resolve_stream_url`, FFmpeg portable, token check, docs base | ✅ Hecho |
-| S1 Datos | `Track` dict, helpers de cola, `BOT_NAME`, tests `music/`, `.bat` portable | 🔴 Siguiente |
+| S1 Datos | `Track` dict, helpers de cola, `BOT_NAME`, tests `music/`, `.bat` portable | ✅ Hecho |
 | S2 Voz robusta | `core/voice.py`, locks, validación canal, `/disconnect`, autodisconnect vacío | 🔴 |
 | S3 Playlists rápidas | `extract_flat`, validación URLs, JS runtime, límites documentados | 🔴 |
 | S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | 🔴 |
@@ -25,8 +25,8 @@
 
 | ID | Ítem | Estado | Depende de | Sprint | Viabilidad vs S0 |
 |---|---|---|---|---|---|
-| A-01 | `Track` dict + retirar shim 3-tupla | 🟡 | — | S1 | ✅ Superficie: 2 sitios (`/queue`, `play_next_song`); API `get_queue/clear_queue` intacta |
-| A-02 | Helpers cola: `remove/move/shuffle/peek` + tests | 🔴 | A-01 | S1 | ✅ Lógica pura, sin tocar voz |
+| A-01 | `Track` dict + retirar shim 3-tupla | ✅ | — | S1 | ✅ Superficie: 2 sitios (`/queue`, `play_next_song`); API `get_queue/clear_queue` intacta |
+| A-02 | Helpers cola: `remove/move/shuffle/peek` + tests | ✅ | A-01 | S1 | ✅ Lógica pura, sin tocar voz |
 | A-03 | `BOT_NAME` configurable | ✅ | — | S0 | ✅ Hecho |
 | A-04 | `core/voice.py` (mover `play_next_song` tal cual) | 🔴 | A-01 | S2 | ✅ Movimiento mecánico; firmas slash intactas |
 | A-05 | `GUILD_LOCKS` en mutaciones voz/cola | 🔴 | A-04 | S2 | ✅ Aditivo, sin choque |
@@ -58,10 +58,10 @@
 
 | ID | Ítem | Estado | Sprint | Notas |
 |---|---|---|---|---|
-| C-01 | Tests `music/queue.py` (puros) | 🔴 | S1 | Sin mocks; primera red de seguridad |
-| C-02 | Tests `music/search.py` (mock yt-dlp) | 🔴 | S1 | Mock `_extract` |
+| C-01 | Tests `music/queue.py` (puros) | ✅ | S1 | Sin mocks; primera red de seguridad |
+| C-02 | Tests `music/search.py` (mock yt-dlp) | ✅ | S1 | Mock `_extract` |
 | C-03 | Logger a archivo (`utils/logger.py`) sustituyendo `print` | 🔴 | S2 | Testigos: voz y search |
-| C-04 | `start_bot.bat` portable (ruta relativa) | 🔴 | S1 | Tarea menor |
+| C-04 | `start_bot.bat` portable (ruta relativa) | ✅ | S1 | Tarea menor |
 | C-05 | Ruff + `py_compile` en CI | 🔴 | Futuro | Tras estabilizar imports |
 | C-06 | Dockerfile + compose (VPS) | 🔴 | Futuro | FFmpeg vía apt, no `bin/` |
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |

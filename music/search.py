@@ -30,15 +30,21 @@ def _is_url(query: str) -> bool:
 
 
 def _track_from_entry(e: dict) -> dict | None:
+    """Normaliza una entrada de yt-dlp al formato Track (ver docs/desarrollo/diccionario.md).
+
+    `url` puede ser None (entradas flat o sin extraer): se resuelve al
+    reproducir con resolve_stream_url(). `webpage_url` es la identidad estable.
+    """
     if not e:
         return None
-    # En playlists/ytsearch algunas entradas solo traen id + webpage_url.
-    # Guardamos lo que haya; la URL directa de audio se resuelve al reproducir.
     return {
         "title": e.get("title") or "Untitled",
-        "url": e.get("url"),  # puede ser None -> se resuelve en play_next_song
+        "url": e.get("url"),  # puede ser None -> se resuelve al reproducir
         "webpage_url": e.get("webpage_url"),
         "duration": e.get("duration"),
+        "uploader": e.get("uploader"),
+        "thumbnail": e.get("thumbnail"),
+        "requested_by": None,  # lo pone /play con el usuario de Discord
     }
 
 

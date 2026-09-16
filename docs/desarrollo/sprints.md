@@ -13,20 +13,22 @@
 - `README` base + `docs/manuales/` + `.gitignore` + `.env.example`.
 - **Deuda que deja:** shim temporal, sin locks, sin validación de canal, sin flat, sin `core/voice.py`.
 
-## Sprint 1 — Datos y base testeable 🔴 SIGUIENTE
+## Sprint 1 — Datos y base testeable ✅ HECHO
 **Objetivo:** estructura `Track` definitiva + cola con helpers + primera red de tests.
 No se toca voz ni FFmpeg → riesgo mínimo (ver ADR-001).
 
-- [ ] A-01 Migrar cola a `Track` dict (`diccionario.md` §1); actualizar 2 sitios
+- [x] A-01 Migrar cola a `Track` dict (`diccionario.md` §1); actualizar 2 sitios
       (`/queue`, `play_next_song`); **retirar shim**; `search.py` emite `Track`.
-- [ ] A-02 Helpers en `music/queue.py`: `remove/move/shuffle/peek` (sin comandos aún).
-- [ ] C-01/C-02 Tests: `music/queue.py` puros + `music/search.py` con mock de `_extract`.
-- [ ] C-04 `start_bot.bat` portable (ruta relativa, sin `D:\` fijo).
-- [ ] Revisar `music/playlist.py` y `music/trolls.py` vacíos: o se implementan
+- [x] A-02 Helpers en `music/queue.py`: `remove/move/shuffle/peek` (sin comandos aún).
+- [x] C-01/C-02 Tests: `music/queue.py` puros + `music/search.py` con mock de `_extract`.
+- [x] C-04 `start_bot.bat` portable (ruta relativa, sin `D:\` fijo).
+- [x] Revisar `music/playlist.py` y `music/trolls.py` vacíos: o se implementan
       (trolls → B-08 futuro) o se eliminan para no confundir.
-- **Hecho cuando:** matriz `casos.md` en verde + `pytest` en verde + sin `try/except ValueError` de tuplas.
+- **Hecho cuando:** matriz `casos.md` en verde + tests en verde
+  (`python -m unittest discover -s tests`, 18 tests, stdlib sin pytest)
+  + sin `try/except ValueError` de tuplas.
 
-## Sprint 2 — Voz robusta
+## Sprint 2 — Voz robusta 🔴 SIGUIENTE
 **Objetivo:** un solo dueño de la voz (`core/voice.py`) + concurrencia + canal.
 Movimiento mecánico primero, robustez después (ver ADR-003).
 
