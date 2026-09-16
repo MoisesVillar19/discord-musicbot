@@ -1,111 +1,73 @@
-# 🎧 DJ Huevito — MusicBot de Discord
+# 🎧 MusicBot — Bot de música para Discord
 
-Bot de música para Discord en Python: reproduce canciones y playlists de YouTube con `/play`, cola por servidor, controles de pausa / resume / skip / stop.
+Bot de música para Discord en Python: reproduce canciones y playlists de
+YouTube con `/play`, cola independiente por servidor y controles de
+pausa / resume / skip / stop.
 
 ## ✨ Funciones
 
-- `/play <nombre o URL> [start] [limit]` — reproduce o encola. Acepta texto libre (usa `ytsearch`), video o playlist.
-- `/queue` — muestra la cola actual del servidor.
+- `/play <nombre o URL> [start] [limit]` — texto, video o playlist (hasta 100 por tanda).
+- `/queue` — cola del servidor (mensaje ephemeral).
 - `/pause`, `/resume`, `/skip`, `/stop` — controles de reproducción.
-- `/help` — lista de comandos.
-- Cola independiente por servidor (`music/queue.py`).
-- Resolución diferida de URL de audio para playlists (no se cae si un video no trae `url` directa).
+- `/help` — ayuda corta.
+- Cola por servidor, autodisconnect al vaciarse la cola, embed Now Playing.
+- El nombre visible se configura con `BOT_NAME` en `.env` (por defecto `MusicBot`).
+
+## 🚀 Inicio rápido (Windows)
+
+```bat
+git clone https://github.com/MoisesVillar19/MusicBot.git
+cd MusicBot
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+notepad .env
+venv\Scripts\python bot.py
+```
+
+En `.env` pon tu token (`DISCORD_TOKEN=…`, con el intent **Message Content**
+activado) y opcionalmente `BOT_NAME=TuNombre`.
+
+Guías completas:
+
+- [`docs/manuales/INSTALACION.md`](docs/manuales/INSTALACION.md) — portal de Discord, FFmpeg, problemas comunes.
+- [`docs/manuales/COMANDOS.md`](docs/manuales/COMANDOS.md) — referencia de comandos y notas técnicas.
 
 ## 🧱 Estructura
 
 ```
 MusicBot/
-├── bot.py              # Punto de entrada + comandos slash
-├── config.py           # Lee DISCORD_TOKEN (.env) y rutas de FFmpeg
+├── bot.py              # Comandos slash + coordinación de reproducción
+├── config.py           # DISCORD_TOKEN, BOT_NAME, FFMPEG_PATH (desde .env)
 ├── music/
-│   ├── queue.py        # Cola por guild (deque)
-│   └── search.py       # Búsqueda yt-dlp + resolve_stream_url
-├── commands/ core/ services/ ui/ utils/  # Reservado para futura modularización
+│   ├── queue.py        # Cola por servidor
+│   └── search.py       # Búsqueda yt-dlp + resolución de audio
+├── commands/ core/ services/ ui/ utils/  # Se pueblan por sprints (ver desarrollo)
 ├── requirements.txt
-├── start_bot.bat       # Arranque rápido en Windows
-├── .env.example        # Plantilla (copiar a .env)
-└── docs/               # Documentación extra
+├── start_bot.bat
+├── .env.example
+└── docs/
+    ├── manuales/       # Instalación y comandos (usuario)
+    └── desarrollo/     # Arquitectura, roadmap, sprints (contribuidor)
 ```
 
-> Los comandos viven hoy en `bot.py`. Las carpetas `commands/`, `core/`, `services/`, `ui/`, `utils/` están vacías como reserva para cuando quieras separar en cogs.
+## 🗺️ Roadmap
 
-## 🚀 Instalación (Windows)
+Estado y próximos pasos (sprints 1–4: `Track` dict → `core/voice.py` → playlists
+rápidas → experiencia):
 
-1. Instala **Python 3.11+** y **FFmpeg** (o deja el `bin/ffmpeg/ffmpeg.exe` local).
-   - Si FFmpeg está en el `PATH`, el bot lo usa automáticamente.
-   - Si no, coloca `ffmpeg.exe` en `bin/ffmpeg/ffmpeg.exe` (ver `config.py`).
-2. Clona el repo:
-   ```bat
-   git clone https://github.com/MoisesVillar19/MusicBot.git
-   cd MusicBot
-   ```
-3. Crea entorno virtual e instala dependencias:
-   ```bat
-   python -m venv venv
-   venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-4. Configura el token:
-   ```bat
-   copy .env.example .env
-   notepad .env
-   ```
-   Pega tu token: `DISCORD_TOKEN=...`
-   - Activa el intent **Message Content** en el [portal de Discord](https://discord.com/developers/applications).
-5. Ejecuta:
-   ```bat
-   venv\Scripts\python bot.py
-   ```
-   o doble clic en `start_bot.bat`.
-
-## 🤖 Invitar el bot a tu servidor
-
-1. En el portal de desarrollador → OAuth2 → URL Generator.
-2. Marca `bot` + `applications.commands`, permisos: Connect, Speak, Send Messages, Embed Links.
-3. Abre la URL generada e invita al bot. Luego usa `/play` en un canal de voz.
-
-## 📖 Comandos
-
-| Comando | Descripción | Ejemplo |
-|---|---|---|
-| `/play <query>` | Reproduce o encola | `/play despacito`, `/play https://youtu.be/...` |
-| `/play <playlist> [start] [limit]` | Playlist paginada (máx 100) | `/play <url_playlist> start:5 limit:20` |
-| `/queue` | Ver cola | `/queue` |
-| `/pause` / `/resume` | Pausar / reanudar | — |
-| `/skip` | Saltar canción | — |
-| `/stop` | Detener + limpiar cola + salir | — |
-| `/help` | Ayuda | — |
-
-Detalles y solución de problemas: ver [`docs/COMANDOS.md`](docs/COMANDOS.md) y [`docs/INSTALACION.md`](docs/INSTALACION.md).
-
-## 🛠️ Qué se arregló (vs versión rota)
-
-La versión anterior se rompía por:
-
-1. **Tupla inconsistente en la cola** — `/play` guardaba `(url, title, webpage_url)` (3 elementos) pero `/queue` y `play_next_song` desempaquetaban 2 → `ValueError: too many values to unpack`. Ahora todo usa 3 elementos con compatibilidad hacia atrás.
-2. **Búsqueda por texto no funcionaba** — `yt_dlp.extract_info("despacito")` sin `ytsearch`/`default_search` no devolvía nada. Ahora `music/search.py` detecta URL vs texto y usa `ytsearch:` automáticamente.
-3. **Videos sin `url` directa tumbaban la reproducción** — en playlists algunas entradas vienen sin stream. Ahora se guarda `webpage_url` y `play_next_song` la resuelve con `resolve_stream_url()`, saltando la canción si es imposible.
-4. **Doble diccionario de colas** — `bot.py` tenía su propio `SONG_QUEUES` y `music/queue.py` otro; al terminar se limpiaba el equivocado. Ahora solo se usa `music/queue.py` + `clear_queue()`.
-5. **FFmpeg hardcodeado a Windows** — `executable="bin\\ffmpeg\\ffmpeg.exe"` reventaba si no existía. Ahora `_ffmpeg_executable()` usa el binario local si existe y si no, el FFmpeg del `PATH`.
-6. **Sin validación de token** — `bot.run(None)` daba un error críptico. Ahora falla con mensaje claro si falta `DISCORD_TOKEN`.
-
-## 🗺️ Qué falta / ideas de mejora
-
-- [ ] Pasar comandos a **Cogs** (`commands/play.py`, `commands/queue.py`, …) y borrar código duplicado.
-- [ ] `/nowplaying`, `/volume`, `/loop`, `/shuffle`, `/remove`, `/clear`.
-- [ ] Auto-salir del canal cuando queda vacío (evento `on_voice_state_update`).
-- [ ] Paginación con botones en `/queue` (embed + Next/Prev).
-- [ ] Logging a archivo (`utils/logger.py`) en vez de `print`.
-- [ ] Manejo de errores global (`on_command_error` / `on_app_command_error`).
-- [ ] Tests básicos de `music/queue.py` y `music/search.py` (mock de yt-dlp).
-- [ ] Docker + `docker-compose.yml` para deploy en VPS.
-- [ ] CI con GitHub Actions (`py_compile` + `ruff`).
+- [`docs/desarrollo/roadmap.md`](docs/desarrollo/roadmap.md)
+- [`docs/desarrollo/sprints.md`](docs/desarrollo/sprints.md)
+- [`docs/desarrollo/arquitectura.md`](docs/desarrollo/arquitectura.md)
+- [`docs/desarrollo/casos.md`](docs/desarrollo/casos.md) (aceptación)
+- [`docs/desarrollo/diccionario.md`](docs/desarrollo/diccionario.md) (datos y glosario)
+- [`docs/desarrollo/auditoria.md`](docs/desarrollo/auditoria.md) (historia: qué quedó obsoleto y qué sigue pendiente)
 
 ## 🔒 Seguridad
 
-- **Nunca subas `.env`** (contiene tu token). Ya está en `.gitignore`.
-- Si tu token se filtró alguna vez: regenéralo en el portal de Discord.
-- `bin/` (ffmpeg ~300 MB) tampoco se sube; cada quien lo instala local.
+- **Nunca subas `.env`** (ya está en `.gitignore`). Si un token se filtró, regenéralo.
+- `bin/` (FFmpeg), `venv/` y `__pycache__/` tampoco se suben.
 
 ## 📄 Licencia
 

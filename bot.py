@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS
+from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME
 from music.queue import get_queue, clear_queue
 
 if not TOKEN:
@@ -186,8 +186,8 @@ async def play(
 @bot.tree.command(name="help", description="Ver comandos del bot")
 async def help(interaction: discord.Interaction):
     await interaction.response.send_message(
-        """
-🎧 **Comandos de DJ Huevito**
+        f"""
+🎧 **Comandos de {BOT_NAME}**
 
 ▶ /play <canción> — Reproduce o agrega a la cola
 ⏸ /pause — Pausa la música
