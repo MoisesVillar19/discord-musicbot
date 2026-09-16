@@ -165,12 +165,9 @@ async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None
 
     NOW_PLAYING[guild_id] = track
     voice_client.play(source, after=after_play)
-    embed = discord.Embed(
-        title="🎧 Now Playing",
-        description=f"🎵 **{title}**",
-        color=discord.Color.green(),
-    )
-    asyncio.create_task(channel.send(embed=embed))
+    from ui.embeds import now_playing_embed
+
+    asyncio.create_task(channel.send(embed=now_playing_embed(track)))
 
 
 def _humans_in(channel, bot_user) -> int:

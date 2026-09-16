@@ -15,7 +15,7 @@
 | S1 Datos | `Track` dict, helpers de cola, `BOT_NAME`, tests `music/`, `.bat` portable | ✅ Hecho |
 | S2 Voz robusta | `core/voice.py`, locks, validación canal, `/disconnect`, autodisconnect vacío | ✅ Hecho |
 | S3 Playlists rápidas | `extract_flat`, validación URLs, JS runtime, límites documentados | ✅ Hecho |
-| S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | 🔴 |
+| S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | ✅ Hecho |
 | S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | 🔴 |
 | Futuro | multi-resultados, `/lyrics`, permisos DJ, historial, nube, Docker, CI | 🔬/🔴 |
 
@@ -43,12 +43,12 @@
 
 | ID | Ítem | Estado | Depende de | Sprint | Notas |
 |---|---|---|---|---|---|
-| B-01 | `/nowplaying` (lee `NOW_PLAYING`) | 🔴 | A-04 | S4 | Requiere que voz escriba `NOW_PLAYING` (S2) |
-| B-02 | Embed rico: duración, autor, thumbnail, link, solicitado_por | 🔴 | A-01 | S4 | Requiere `Track` dict |
-| B-03 | `/queue` paginada (embed + botones ⬅️/➡️) | 🔴 | A-02 | S4 | `discord.ui.View`; independiente de voz |
-| B-04 | `/shuffle` | 🔴 | A-02 | S4 | 1 línea sobre el helper |
-| B-05 | `/remove <n>`, `/clear` | 🔴 | A-02 | S4 | Validar rango; mensajes claros |
-| B-06 | `/move <origen> <destino>`, `/play … after:<n>` | 🔴 | A-02 | S4 | `after:` es azúcar sobre `move`/insert |
+| B-01 | `/nowplaying` (lee `NOW_PLAYING`) | ✅ | A-04 | S4 | Requiere que voz escriba `NOW_PLAYING` (S2) |
+| B-02 | Embed rico: duración, autor, thumbnail, link, solicitado_por | ✅ | A-01 | S4 | Requiere `Track` dict |
+| B-03 | `/queue` paginada (embed + botones ⬅️/➡️) | ✅ | A-02 | S4 | `discord.ui.View`; independiente de voz |
+| B-04 | `/shuffle` | ✅ | A-02 | S4 | 1 línea sobre el helper |
+| B-05 | `/remove <n>`, `/clear` | ✅ | A-02 | S4 | Validar rango; mensajes claros |
+| B-06 | `/move <origen> <destino>`, `/play … after:<n>` | ✅ | A-02 | S4 | `after:` es azúcar sobre `move`/insert |
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
 | B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | Futuro | Mapeo búsqueda→URL fija; bajo valor, divertido |
 | B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | 🔴 | A-01 | Futuro | Select menu; moderado |

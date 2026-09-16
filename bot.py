@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME
-from music.queue import get_queue, clear_queue
+from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track
 from utils.errors import MusicBotError, user_message
 from utils.logger import log
 from core import voice as voice_mgr
@@ -221,31 +221,118 @@ async def help(interaction: discord.Interaction):
 ⏸ /pause — Pausa la música
 ▶ /resume — Reanuda
 ⏭ /skip — Salta canción
-⛔ /stop — Detiene todo
+🎶 /queue — Ver cola · 🎧 /nowplaying — Actual
+🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola
+⛔ /stop — Detiene todo · 👋 /disconnect — Salir
 
 🔥 ¡Disfruta la música!
         """
     )
 @bot.tree.command(name="queue", description="Muestra la cola de canciones actuales.")
 async def queue(interaction: discord.Interaction):
-    guild_id = str(interaction.guild_id)
+    from ui.embeds import QUEUE_PER_PAGE, queue_page_embed, queue_pages
 
-    q = get_queue(guild_id)
+    tracks = peek_queue(str(interaction.guild_id))
+    pages = queue_pages(tracks)
 
-    if not q or len(q) == 0:
-        await interaction.response.send_message("🎵 Tu cola está vacía.", ephemeral=True)
-        return
+    class QueueView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.page = 1
 
-    message = "🎶 **Cola actual:**\n"
-    for idx, track in enumerate(q, start=1):
-        # La cola guarda Track (dict)
-        message += f"{idx}. {track.get('title', 'Untitled')}\n"
-        # Límite de Discord: 2000 caracteres
-        if len(message) > 1800:
-            message += f"... y {len(q) - idx} más.\n"
-            break
+        def _render(self):
+            total_pages = len(pages)
+            offset = (self.page - 1) * QUEUE_PER_PAGE
+            return queue_page_embed(pages[self.page - 1], self.page,
+                                    total_pages, len(tracks), offset)
 
-    await interaction.response.send_message(message, ephemeral=True)
+        def _sync_buttons(self):
+            self.prev_btn.disabled = self.page <= 1
+            self.next_btn.disabled = self.page >= len(pages)
+
+        @discord.ui.button(label="⬅️", style=discord.ButtonStyle.secondary)
+        async def prev_btn(self, btn_interaction: discord.Interaction, button):
+            self.page = max(1, self.page - 1)
+            self._sync_buttons()
+            await btn_interaction.response.edit_message(embed=self._render(), view=self)
+
+        @discord.ui.button(label="➡️", style=discord.ButtonStyle.secondary)
+        async def next_btn(self, btn_interaction: discord.Interaction, button):
+            self.page = min(len(pages), self.page + 1)
+            self._sync_buttons()
+            await btn_interaction.response.edit_message(embed=self._render(), view=self)
+
+    view = QueueView()
+    view._sync_buttons()
+    await interaction.response.send_message(embed=view._render(), view=view, ephemeral=True)
+
+
+@bot.tree.command(name="nowplaying", description="Muestra la canción que está sonando.")
+async def nowplaying(interaction: discord.Interaction):
+    from ui.embeds import now_playing_embed
+
+    track = voice_mgr.NOW_PLAYING.get(str(interaction.guild_id))
+    if not track:
+        return await interaction.response.send_message(
+            "🔇 No hay nada reproduciéndose.", ephemeral=True)
+    await interaction.response.send_message(embed=now_playing_embed(track), ephemeral=True)
+
+
+def _need_voice(interaction):
+    """Valida acceso a la cola; devuelve mensaje de error o None."""
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+        return None
+    except MusicBotError as e:
+        return user_message(e)
+
+
+@bot.tree.command(name="shuffle", description="Mezcla la cola.")
+async def shuffle(interaction: discord.Interaction):
+    err = _need_voice(interaction)
+    if err:
+        return await interaction.response.send_message(err, ephemeral=True)
+    if shuffle_queue(str(interaction.guild_id)):
+        await interaction.response.send_message("🔀 Cola mezclada.", ephemeral=True)
+    else:
+        await interaction.response.send_message("🎵 Nada que mezclar (menos de 2).", ephemeral=True)
+
+
+@bot.tree.command(name="remove", description="Elimina una canción de la cola por su número.")
+@app_commands.describe(posicion="Número de la canción en /queue (empieza en 1)")
+async def remove(interaction: discord.Interaction, posicion: int):
+    err = _need_voice(interaction)
+    if err:
+        return await interaction.response.send_message(err, ephemeral=True)
+    track = remove_track(str(interaction.guild_id), posicion)
+    if track is None:
+        return await interaction.response.send_message(
+            "❌ Posición inválida. Revisa /queue.", ephemeral=True)
+    await interaction.response.send_message(
+        f"🗑️ Eliminada: **{track.get('title', 'Untitled')}**", ephemeral=True)
+
+
+@bot.tree.command(name="clear", description="Vacía la cola (sigue sonando la actual).")
+async def clear(interaction: discord.Interaction):
+    err = _need_voice(interaction)
+    if err:
+        return await interaction.response.send_message(err, ephemeral=True)
+    clear_queue(str(interaction.guild_id))
+    await interaction.response.send_message("🧹 Cola vaciada.", ephemeral=True)
+
+
+@bot.tree.command(name="move", description="Mueve una canción a otra posición de la cola.")
+@app_commands.describe(origen="Posición actual", destino="Posición destino")
+async def move(interaction: discord.Interaction, origen: int, destino: int):
+    err = _need_voice(interaction)
+    if err:
+        return await interaction.response.send_message(err, ephemeral=True)
+    if move_track(str(interaction.guild_id), origen, destino):
+        await interaction.response.send_message(
+            f"↔️ Movida #{origen} → #{destino}.", ephemeral=True)
+    else:
+        await interaction.response.send_message(
+            "❌ Posiciones inválidas. Revisa /queue.", ephemeral=True)
 
 
 # Run the bot

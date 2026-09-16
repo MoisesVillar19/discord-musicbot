@@ -28,8 +28,21 @@ Comportamiento:
 
 ## /queue
 
-Muestra la cola del servidor (efímero, solo tú la ves).
-Si supera ~1800 caracteres se trunca con "... y N más".
+Muestra la cola del servidor en embed paginado (10 por página, botones ⬅️/➡️,
+se cierra a los 2 min). Efímero, solo tú lo ves.
+
+## /nowplaying
+
+Muestra la canción actual con título enlazado, autor, duración, miniatura y
+quién la pidió. Si no hay nada: `🔇 No hay nada reproduciéndose.`
+
+## /shuffle — /remove — /move — /clear
+
+- `/shuffle`: mezcla la cola (requiere ≥2).
+- `/remove posicion`: elimina la #N (base 1, ver `/queue`).
+- `/move origen destino`: mueve la #origen a la #destino.
+- `/clear`: vacía la cola; la canción actual sigue sonando.
+- Requieren estar en el mismo canal que el bot.
 
 ## /pause — /resume — /skip — /stop
 
@@ -37,6 +50,7 @@ Si supera ~1800 caracteres se trunca con "... y N más".
 - `/resume`: reanuda si estaba pausado.
 - `/skip`: corta la canción actual (`vc.stop()`); el `after` dispara la siguiente.
 - `/stop`: limpia la cola (`clear_queue`), detiene y desconecta al bot.
+- `/disconnect`: solo desconecta; la cola se conserva para retomar con `/play`.
 
 ## /help
 

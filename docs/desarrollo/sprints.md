@@ -57,7 +57,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] Documentar límites reales: `limit` máx, timeout de extracción, playlists gigantes.
 - **Hecho cuando:** CU-03 con playlist 100+ suena la 1ª en segundos + CB-01/CB-02/CB-10 en verde.
 
-## Sprint 4 — Experiencia 🔴 SIGUIENTE
+## Sprint 4 — Experiencia ✅ HECHO
 **Objetivo:** lo visible que pedían los docs iniciales. Todo depende de S1–S2 ya hechos.
 
 - [ ] B-01 `/nowplaying` (embed con datos de `NOW_PLAYING`).
@@ -67,7 +67,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] B-07 Alias (`/rolita`…) — pocos, documentados; B-08 trolls si apetece.
 - **Hecho cuando:** CU-07 con 150 canciones navegable + B-04–B-06 con validación de rango.
 
-## Sprint 5 — Alters configurables + panel local
+## Sprint 5 — Alters configurables + panel local 🔴 SIGUIENTE
 **Objetivo:** nombres propios (ej. `/jugar` → `play`) editables sin tocar código,
 y arranque/configuración desde una app de escritorio local.
 Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
