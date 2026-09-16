@@ -25,6 +25,9 @@ Thumbs.db
 .idea/
 *.log
 
+# Logs del bot
+logs/
+
 # yt-dlp cache
 *.part
 *.ytdl

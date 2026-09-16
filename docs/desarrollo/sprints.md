@@ -28,7 +28,7 @@ No se toca voz ni FFmpeg → riesgo mínimo (ver ADR-001).
   (`python -m unittest discover -s tests`, 18 tests, stdlib sin pytest)
   + sin `try/except ValueError` de tuplas.
 
-## Sprint 2 — Voz robusta 🔴 SIGUIENTE
+## Sprint 2 — Voz robusta ✅ HECHO
 **Objetivo:** un solo dueño de la voz (`core/voice.py`) + concurrencia + canal.
 Movimiento mecánico primero, robustez después (ver ADR-003).
 
@@ -45,7 +45,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] CB-08: validar FFmpeg al arrancar con mensaje legible.
 - **Hecho cuando:** CU-05/CU-06/CB-05/CB-09 en verde bajo ráfagas simultáneas.
 
-## Sprint 3 — Playlists rápidas y válidas
+## Sprint 3 — Playlists rápidas y válidas 🔴 SIGUIENTE
 **Objetivo:** la 1ª canción suena ya; entradas inválidas → mensaje, nunca crash.
 
 - [ ] A-10 `extract_flat="in_playlist"` solo en rama playlist; resolver audio al

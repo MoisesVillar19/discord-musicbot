@@ -6,23 +6,15 @@ from discord import app_commands
 
 from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME
 from music.queue import get_queue, clear_queue
+from utils.errors import MusicBotError, user_message
+from utils.logger import log
+from core import voice as voice_mgr
 
 if not TOKEN:
     raise RuntimeError(
         "DISCORD_TOKEN no encontrado. Crea un archivo .env con DISCORD_TOKEN=tu_token "
         "(ver .env.example)."
     )
-
-
-def _ffmpeg_executable() -> str | None:
-    """Devuelve el ejecutable de FFmpeg a usar, o None si va por PATH."""
-    import os as _os
-
-    # config.py usa "bin/ffmpeg/ffmpeg.exe" (relativo). Normalizar separadores.
-    candidate = _os.path.normpath(FFMPEG_PATH) if FFMPEG_PATH else ""
-    if candidate and _os.path.isfile(candidate):
-        return candidate
-    return None
 
 
 # Setup of intents. Intents are permissions the bot has on the server
@@ -36,33 +28,57 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    print(f"{bot.user} is online!")
+    log.info("%s is online!", bot.user)
+    if not voice_mgr.ffmpeg_available():
+        log.warning("FFmpeg no encontrado (ni %s ni PATH). No sonará nada.", FFMPEG_PATH)
+
+
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error):
+    original = getattr(error, "original", error)
+    log.exception("Error en /%s: %s", getattr(interaction.command, "name", "?"), original)
+    try:
+        msg = user_message(original)
+        if interaction.response.is_done():
+            await interaction.followup.send(msg, ephemeral=True)
+        else:
+            await interaction.response.send_message(msg, ephemeral=True)
+    except Exception:
+        pass
+
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    await voice_mgr.handle_voice_state_update(bot, member, before, after)
 
 
 @bot.tree.command(name="skip")
 async def skip(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+    except MusicBotError as e:
+        return await interaction.followup.send(user_message(e))
+
     vc = interaction.guild.voice_client
-
-    if not vc or not vc.is_connected():
-        return await interaction.followup.send("No estoy en un canal de voz.")
-
     if not (vc.is_playing() or vc.is_paused()):
         return await interaction.followup.send("No hay nada reproduciéndose.")
 
-    vc.stop()
+    async with voice_mgr.get_lock(str(interaction.guild_id)):
+        vc.stop()
     await interaction.followup.send("⏭️ Canción omitida.")
 
 
 
 @bot.tree.command(name="pause", description="Pausa la canción que se está reproduciendo actualmente.")
 async def pause(interaction: discord.Interaction):
-    voice_client = interaction.guild.voice_client
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+    except MusicBotError as e:
+        return await interaction.response.send_message(user_message(e), ephemeral=True)
 
-    # Check if the bot is in a voice channel
-    if voice_client is None:
-        return await interaction.response.send_message("Oe sanazo, no estoy en un canal de voz.")
+    voice_client = interaction.guild.voice_client
 
     # Check if something is actually playing
     if not voice_client.is_playing():
@@ -75,11 +91,12 @@ async def pause(interaction: discord.Interaction):
 
 @bot.tree.command(name="resume", description="Reanuda la canción que se ha pausado.")
 async def resume(interaction: discord.Interaction):
-    voice_client = interaction.guild.voice_client
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+    except MusicBotError as e:
+        return await interaction.response.send_message(user_message(e), ephemeral=True)
 
-    # Check if the bot is in a voice channel
-    if voice_client is None:
-        return await interaction.response.send_message("Oe sanazo, no estoy en un canal de voz.")
+    voice_client = interaction.guild.voice_client
 
     # Check if it's actually paused
     if not voice_client.is_paused():
@@ -94,26 +111,32 @@ async def resume(interaction: discord.Interaction):
 async def stop(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+    except MusicBotError as e:
+        return await interaction.followup.send(user_message(e))
+
     msg = await interaction.followup.send("⛔ Deteniendo reproducción...")
 
     vc = interaction.guild.voice_client
-    if not vc:
-        return await msg.edit(content="⚠️ No estoy en un canal de voz.")
-
-
-    guild_id = str(interaction.guild_id)
-
-    clear_queue(guild_id)
-
-    try:
-        if vc.is_playing() or vc.is_paused():
-            vc.stop()
-
-        await vc.disconnect(force=True)
-    except Exception as e:
-        print(f"Stop error: {e}")
+    await voice_mgr.stop_playback(str(interaction.guild_id), vc, clear=True)
 
     await msg.edit(content="⛔ Reproducción detenida.")
+
+
+@bot.tree.command(name="disconnect", description="Desconecta al bot del canal de voz (conserva la cola).")
+async def disconnect(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+
+    try:
+        voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+    except MusicBotError as e:
+        return await interaction.followup.send(user_message(e))
+
+    vc = interaction.guild.voice_client
+    await voice_mgr.stop_playback(str(interaction.guild_id), vc, clear=False)
+
+    await interaction.followup.send("👋 Desconectado. La cola se conserva.")
 
 
 @bot.tree.command(name="play", description="Reproduce una canción o playlist.")
@@ -140,12 +163,7 @@ async def play(
     start_index = start - 1
 
     voice_channel = interaction.user.voice.channel
-    vc = interaction.guild.voice_client
-
-    if vc is None:
-        vc = await voice_channel.connect(self_deaf=True)
-    elif vc.channel != voice_channel:
-        await vc.move_to(voice_channel)
+    vc = await voice_mgr.ensure_voice(interaction)
 
     from music.search import search_ytdlp
 
@@ -179,9 +197,11 @@ async def play(
 
     await interaction.followup.send(msg)
 
-
-    if not vc.is_playing() and not vc.is_paused():
-        await play_next_song(vc, str(interaction.guild_id), interaction.channel)
+    guild_id = str(interaction.guild_id)
+    async with voice_mgr.get_lock(guild_id):
+        start_now = not vc.is_playing() and not vc.is_paused()
+    if start_now:
+        await voice_mgr.play_next_song(vc, guild_id, interaction.channel, bot.loop)
 
 
 
@@ -220,81 +240,6 @@ async def queue(interaction: discord.Interaction):
             break
 
     await interaction.response.send_message(message, ephemeral=True)
-
-async def play_next_song(voice_client, guild_id, channel):
-    from music.search import resolve_stream_url
-
-    queue = get_queue(guild_id)
-
-    if queue:
-        track = queue.popleft()
-        audio_url = track.get("url")
-        title = track.get("title") or "Untitled"
-        webpage_url = track.get("webpage_url")
-
-        # Si yt-dlp no dio URL directa (playlist/flat), resolverla ahora
-        if not audio_url and webpage_url:
-            audio_url, resolved_title = await resolve_stream_url(webpage_url)
-            if resolved_title:
-                title = resolved_title
-
-        if not audio_url:
-            print(f"[play] Sin URL reproducible para '{title}', saltando...")
-            # Intentar con la siguiente en cola sin recursión infinita
-            if queue:
-                await play_next_song(voice_client, guild_id, channel)
-            else:
-                try:
-                    if voice_client.is_connected():
-                        await voice_client.disconnect()
-                except Exception as e:
-                    print(f"[play] disconnect error: {e}")
-                finally:
-                    clear_queue(guild_id)
-            return
-
-        ffmpeg_options = {
-            "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-            "options": "-vn -c:a libopus -b:a 96k",
-        }
-        executable = _ffmpeg_executable()
-        if executable:
-            ffmpeg_options["executable"] = executable
-        # Si no hay bin local, discord.py usa ffmpeg del PATH.
-
-        try:
-            source = discord.FFmpegOpusAudio(audio_url, **ffmpeg_options)
-        except Exception as e:
-            print(f"[play] FFmpeg error con '{title}': {e}")
-            if queue:
-                await play_next_song(voice_client, guild_id, channel)
-            return
-
-        def after_play(error):
-            if error:
-                print(f"Error playing {title}: {error}")
-            try:
-                coro = play_next_song(voice_client, guild_id, channel)
-                asyncio.run_coroutine_threadsafe(coro, bot.loop)
-            except RuntimeError as e:
-                print(f"[play] after_play error: {e}")
-
-        voice_client.play(source, after=after_play)
-        embed = discord.Embed(
-            title="🎧 Now Playing",
-            description=f"🎵 **{title}**",
-            color=discord.Color.green()
-        )
-
-        asyncio.create_task(channel.send(embed=embed))
-    else:
-        try:
-            if voice_client.is_connected():
-                await voice_client.disconnect()
-        except Exception as e:
-            print(f"[play] disconnect error: {e}")
-        finally:
-            clear_queue(guild_id)
 
 
 # Run the bot
