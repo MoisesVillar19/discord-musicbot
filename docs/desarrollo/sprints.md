@@ -67,7 +67,7 @@ Movimiento mecánico primero, robustez después (ver ADR-003).
 - [ ] B-07 Alias (`/rolita`…) — pocos, documentados; B-08 trolls si apetece.
 - **Hecho cuando:** CU-07 con 150 canciones navegable + B-04–B-06 con validación de rango.
 
-## Sprint 5 — Alters configurables + panel local 🔴 SIGUIENTE
+## Sprint 5 — Alters configurables + panel local ✅ HECHO
 **Objetivo:** nombres propios (ej. `/jugar` → `play`) editables sin tocar código,
 y arranque/configuración desde una app de escritorio local.
 Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
@@ -89,6 +89,11 @@ Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
 ## Futuro (sin sprint asignado)
 - B-09 multi-resultados con select · B-10 `/lyrics` (**spike previo**: auth/límites/ToS).
 - C-05 CI (ruff+tests) · C-06 Docker · C-07 permisos DJ · C-08 historial · C-09 nube 24/7.
+- **R-01 Revisión de nombres base:** terminados los sprints, repasar cada función
+  y decidir si su nombre canónico se corrige (los alters ya dan margen para
+  renombrar sin romper costumbre).
+- Panel v2: perfiles múltiples, tema moderno (`customtkinter`), más ajustes
+  (volumen default, timeout autodisconnect, nivel de log).
 
 ## Riesgos y mitigaciones
 

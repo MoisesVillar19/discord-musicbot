@@ -14,6 +14,9 @@ ENV/
 .env
 *.token
 
+# Alters locales (tus nombres; el repo trae aliases.example.json)
+aliases.json
+
 # FFmpeg binarios locales (~300MB, no subir a GitHub)
 bin/
 *.exe

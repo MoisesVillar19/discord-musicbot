@@ -33,6 +33,7 @@ Guías completas:
 
 - [`docs/manuales/INSTALACION.md`](docs/manuales/INSTALACION.md) — portal de Discord, FFmpeg, problemas comunes.
 - [`docs/manuales/COMANDOS.md`](docs/manuales/COMANDOS.md) — referencia de comandos y notas técnicas.
+- [`docs/manuales/PANEL.md`](docs/manuales/PANEL.md) — panel local y alters.
 
 ## 🧱 Estructura
 
@@ -45,7 +46,10 @@ MusicBot/
 │   └── search.py       # Búsqueda yt-dlp + resolución de audio
 ├── commands/ core/ services/ ui/ utils/  # Se pueblan por sprints (ver desarrollo)
 ├── requirements.txt
-├── start_bot.bat
+├── start_bot.bat       # Bot directo (headless)
+├── panel.bat           # Panel local (start/stop, alters, config, logs)
+├── panel/              # App tkinter del panel
+├── aliases.example.json # Plantilla de alters (los tuyos van en aliases.json local)
 ├── .env.example
 └── docs/
     ├── manuales/       # Instalación y comandos (usuario)

@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME
+from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME, GUILD_ID
 from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track
 from utils.errors import MusicBotError, user_message
 from utils.logger import log
@@ -27,8 +27,12 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Bot ready-up code
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
-    log.info("%s is online!", bot.user)
+    if GUILD_ID:
+        await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+        log.info("%s is online! (sync servidor %s)", bot.user, GUILD_ID)
+    else:
+        await bot.tree.sync()
+        log.info("%s is online! (sync global)", bot.user)
     if not voice_mgr.ffmpeg_available():
         log.warning("FFmpeg no encontrado (ni %s ni PATH). No sonará nada.", FFMPEG_PATH)
 
@@ -213,21 +217,25 @@ async def play(
 
 @bot.tree.command(name="help", description="Ver comandos del bot")
 async def help(interaction: discord.Interaction):
-    await interaction.response.send_message(
-        f"""
-🎧 **Comandos de {BOT_NAME}**
-
-▶ /play <canción> — Reproduce o agrega a la cola
-⏸ /pause — Pausa la música
-▶ /resume — Reanuda
-⏭ /skip — Salta canción
-🎶 /queue — Ver cola · 🎧 /nowplaying — Actual
-🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola
-⛔ /stop — Detiene todo · 👋 /disconnect — Salir
-
-🔥 ¡Disfruta la música!
-        """
-    )
+    lines = [
+        f"🎧 **Comandos de {BOT_NAME}**",
+        "",
+        "▶ /play <canción> — Reproduce o agrega a la cola",
+        "⏸ /pause — Pausa la música",
+        "▶ /resume — Reanuda",
+        "⏭ /skip — Salta canción",
+        "🎶 /queue — Ver cola · 🎧 /nowplaying — Actual",
+        "🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola",
+        "⛔ /stop — Detiene todo · 👋 /disconnect — Salir",
+    ]
+    active = [(c, a) for c, a in ALIASES.items() if a]
+    if active:
+        lines.append("")
+        lines.append("🎭 **Alters:**")
+        for canonical, alters in active:
+            lines.append(f"· /{canonical}: " + ", ".join(f"/{a}" for a in alters))
+    lines += ["", "🔥 ¡Disfruta la música!"]
+    await interaction.response.send_message("\n".join(lines))
 @bot.tree.command(name="queue", description="Muestra la cola de canciones actuales.")
 async def queue(interaction: discord.Interaction):
     from ui.embeds import QUEUE_PER_PAGE, queue_page_embed, queue_pages
@@ -333,6 +341,29 @@ async def move(interaction: discord.Interaction, origen: int, destino: int):
     else:
         await interaction.response.send_message(
             "❌ Posiciones inválidas. Revisa /queue.", ephemeral=True)
+
+
+# --- Alters configurables (Sprint 5, D-03) ---
+# Cada alter es un slash command propio que reutiliza el callback del canónico.
+from core.aliases import AliasError, load_aliases
+
+try:
+    ALIASES = load_aliases()
+except AliasError as e:
+    raise RuntimeError(f"Revisa aliases.json: {e}")
+
+for _canonical, _alters in ALIASES.items():
+    _base = bot.tree.get_command(_canonical)
+    if _base is None:
+        continue
+    for _alt in _alters:
+        if bot.tree.get_command(_alt) is not None:
+            continue
+        bot.tree.command(
+            name=_alt,
+            description=f"{_base.description} (alias de /{_canonical})",
+        )(_base.callback)
+        log.info("Alter registrado: /%s -> /%s", _alt, _canonical)
 
 
 # Run the bot

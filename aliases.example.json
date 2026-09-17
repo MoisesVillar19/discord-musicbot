@@ -1,0 +1,15 @@
+{
+  "play": ["jugar", "rolita"],
+  "pause": [],
+  "resume": [],
+  "skip": ["salta"],
+  "stop": [],
+  "disconnect": [],
+  "queue": ["cola"],
+  "nowplaying": [],
+  "shuffle": [],
+  "remove": [],
+  "clear": [],
+  "move": [],
+  "help": []
+}
