@@ -22,8 +22,8 @@
 | S7 Multi-resultados | `ytsearch5` + select (B-09) | ✅ Hecho |
 | S8 Trolls + historial | 3 modos troll + `/history` replay (B-08, C-08) | ✅ Hecho |
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | ✅ Hecho |
-| S10 Calidad | +tests (unitarios, handlers), ruff, coverage, docker build (T-01…T-04) | ✅ Hecho Siguiente |
-| Futuro | `/lyrics` (spike), permisos DJ, panel v2 | 🔬/🔴 |
+| S10 Calidad | +tests (unitarios, handlers), ruff, coverage, docker build (T-01…T-04) | ✅ Hecho |
+| Futuro | Detalle en `futuro-funciones.md` y `futuro-hosting-247.md` | 🔬/🔴 |
 
 ## Backlog
 

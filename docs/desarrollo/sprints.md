@@ -189,7 +189,11 @@ en tu PC, en un VPS o en la nube; y para no "en mi máquina sí funciona".
 Recomendación: seguir local hasta cerrar S9; luego Raspberry u Oracle Free;
 VPS de pago solo si quieres cero mantenimiento.
 
-## Futuro (sin sprint asignado)
+## Futuro (documentado, sin sprint asignado)
+- `futuro-funciones.md`: B-10 `/lyrics` (spike LRCLIB primero), C-07 permisos
+  DJ (`DJ_ROLE_ID`), panel v2 (ajustes, despliegue Pi, perfiles, customtkinter).
+- `futuro-hosting-247.md`: guía Pi paso a paso + nube detallada (no se implementará
+  por ahora).
 - B-10 `/lyrics` (**spike previo**: auth/límites/ToS).
 - C-07 permisos DJ.
 - Panel v2: perfiles múltiples, tema moderno (`customtkinter`), más ajustes
