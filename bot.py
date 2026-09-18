@@ -14,12 +14,6 @@ from utils.errors import user_message
 from utils.logger import log
 from core import voice as voice_mgr
 
-if not TOKEN:
-    raise RuntimeError(
-        "DISCORD_TOKEN no encontrado. Crea un archivo .env con DISCORD_TOKEN=tu_token "
-        "(ver .env.example)."
-    )
-
 
 class MusicBot(commands.Bot):
     async def setup_hook(self):
@@ -78,5 +72,10 @@ async def on_voice_state_update(member, before, after):
 
 
 if __name__ == "__main__":
+    if not TOKEN:
+        raise RuntimeError(
+            "DISCORD_TOKEN no encontrado. Crea un archivo .env con DISCORD_TOKEN=tu_token "
+            "(ver .env.example)."
+        )
     # Run the bot
     bot.run(TOKEN)
