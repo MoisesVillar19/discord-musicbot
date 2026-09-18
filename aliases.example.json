@@ -12,5 +12,7 @@
   "remove": ["quitar"],
   "clear": ["limpiar"],
   "move": ["mover"],
+  "troll": ["troleo"],
+  "history": ["historial"],
   "help": ["ayuda"]
 }

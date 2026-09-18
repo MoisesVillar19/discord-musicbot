@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME, GUILD_ID
+from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME, GUILD_ID, TROLL_CHANCE
 from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track, drop_first
 from utils.errors import MusicBotError, user_message
 from utils.logger import log
@@ -196,8 +196,31 @@ async def play(
     from utils.validators import TEXT
     from ui.embeds import format_duration, track_line
 
-    # Texto libre -> menú con 5 opciones (Sprint 7, B-09). Sin entrar a voz aún.
+    # Texto libre -> keyword troll, emboscada o menú (S7 + S8). Sin entrar a voz aún.
     if classify(song_query) == TEXT:
+        from music.trolls import ensure_trolls, match_keyword, roll_ambush
+
+        troll_list = ensure_trolls()
+        # 1) Keyword exacta: el troll pedido a propósito
+        forced = match_keyword(song_query, troll_list)
+        # 2) Emboscada: pediste X con ratio bajo y suena un meme
+        ambush = None if forced else roll_ambush(TROLL_CHANCE, troll_list)
+        troll = forced or ambush
+        if troll is not None:
+            vc = await voice_mgr.ensure_voice(interaction)
+            tracks, _, _ = await search_ytdlp(troll["url"], 1, 0)
+            if not tracks:
+                await interaction.followup.send("❌ No se encontraron resultados.")
+                return
+            _enqueue(str(interaction.guild_id), interaction.user.display_name, tracks)
+            note = ("🎭 ¡TROLEADO! Pediste "
+                    f"**{song_query}** y suena **{tracks[0].get('title')}**."
+                    if ambush else
+                    f"🎭 **{tracks[0].get('title')}** (pedido por keyword).")
+            await interaction.followup.send(note)
+            await _maybe_start(interaction, vc)
+            return
+
         options = await search_many(song_query, n=5)
         if not options:
             await interaction.followup.send("❌ No se encontraron resultados.")
@@ -309,6 +332,7 @@ async def help(interaction: discord.Interaction):
         "🎶 /queue — Ver cola · 🎧 /nowplaying — Actual",
         "🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola",
         "⛔ /stop — Detiene todo · 👋 /disconnect — Salir",
+        "🎭 /troll — Menú troll · 📜 /history — Historial + replay",
     ]
     active = [(c, a) for c, a in ALIASES.items() if a]
     if active:
@@ -423,6 +447,88 @@ async def move(interaction: discord.Interaction, origen: int, destino: int):
     else:
         await interaction.response.send_message(
             "❌ Posiciones inválidas. Revisa /queue.", ephemeral=True)
+
+
+@bot.tree.command(name="troll", description="Menú de canciones troll.")
+async def troll(interaction: discord.Interaction):
+    from music.trolls import ensure_trolls
+
+    troll_list = ensure_trolls()
+    if not troll_list:
+        return await interaction.response.send_message(
+            "🎭 No hay trolls configurados (trolls.json).", ephemeral=True)
+
+    class TrollView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=60)
+
+        @discord.ui.select(
+            placeholder="🎭 Elige tu víctima…",
+            options=[discord.SelectOption(label=t["name"][:100], value=str(i))
+                     for i, t in enumerate(troll_list)],
+        )
+        async def pick(self, sel: discord.Interaction, select):
+            if sel.user.id != interaction.user.id:
+                return await sel.response.send_message(
+                    "❌ Solo quien pidió puede elegir.", ephemeral=True)
+            if interaction.user.voice is None:
+                return await sel.response.send_message(
+                    "🎧 Debes estar en un canal de voz.", ephemeral=True)
+            from music.search import search_ytdlp
+
+            troll = troll_list[int(select.values[0])]
+            vc = await voice_mgr.ensure_voice(interaction)
+            tracks, _, _ = await search_ytdlp(troll["url"], 1, 0)
+            if not tracks:
+                return await sel.response.send_message(
+                    "❌ No se pudo resolver el troll.", ephemeral=True)
+            _enqueue(str(interaction.guild_id), interaction.user.display_name, tracks)
+            await sel.response.edit_message(
+                content=f"🎭 Troleo en camino: **{tracks[0].get('title')}**", view=None)
+            await _maybe_start(interaction, vc)
+
+    await interaction.response.send_message(
+        "🎭 **Menú troll:**", view=TrollView(), ephemeral=True)
+
+
+@bot.tree.command(name="history", description="Últimas canciones + re-encolar.")
+async def history(interaction: discord.Interaction):
+    from music.queue import get_history
+    from ui.embeds import track_line
+
+    hist = get_history(str(interaction.guild_id))
+    if not hist:
+        return await interaction.response.send_message(
+            "📜 Historial vacío.", ephemeral=True)
+
+    class HistView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=60)
+
+        @discord.ui.select(
+            placeholder="📜 Re-encolar…",
+            options=[discord.SelectOption(
+                label=t.get("title", "Untitled")[:100], value=str(i))
+                for i, t in enumerate(hist)],
+        )
+        async def pick(self, sel: discord.Interaction, select):
+            if sel.user.id != interaction.user.id:
+                return await sel.response.send_message(
+                    "❌ Solo quien pidió puede elegir.", ephemeral=True)
+            if interaction.user.voice is None:
+                return await sel.response.send_message(
+                    "🎧 Debes estar en un canal de voz.", ephemeral=True)
+            track = dict(hist[int(select.values[0])])
+            track["url"] = None  # forzar resolución fresca al sonar
+            vc = await voice_mgr.ensure_voice(interaction)
+            _enqueue(str(interaction.guild_id), interaction.user.display_name, [track])
+            await sel.response.edit_message(
+                content=f"🎵 Re-encolada: **{track.get('title')}**", view=None)
+            await _maybe_start(interaction, vc)
+
+    lines = [f"{i}. {track_line(t)}" for i, t in enumerate(hist, start=1)]
+    await interaction.response.send_message(
+        "📜 **Historial:**\n" + "\n".join(lines), view=HistView(), ephemeral=True)
 
 
 # --- Alters configurables (Sprint 5, D-03) ---

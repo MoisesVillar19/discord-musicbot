@@ -11,7 +11,7 @@ import shutil
 import discord
 
 from config import FFMPEG_PATH
-from music.queue import clear_queue, get_queue
+from music.queue import clear_queue, get_queue, record_history
 from utils.errors import NotConnectedError, WrongChannelError
 from utils.logger import log
 
@@ -164,6 +164,7 @@ async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None
             log.warning("after_play error: %s", e)
 
     NOW_PLAYING[guild_id] = track
+    record_history(guild_id, track)
     voice_client.play(source, after=after_play)
     from ui.embeds import now_playing_embed
 

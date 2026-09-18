@@ -133,13 +133,19 @@ encolar a ciegas el 1er resultado.
 - [x] CU-10 en `casos.md` + manual actualizado.
 - **Hecho cuando:** elegir la opción 3 reproduce la 3 (no la 1). 56/56 tests.
 
-## Sprint 8 — Trolls + historial (B-08, C-08) 🔴 SIGUIENTE
+## Sprint 8 — Trolls + historial (B-08, C-08) ✅ HECHO
+- [x] `music/trolls.py` + `trolls.example.json` + seed + `TROLL_CHANCE` (default 0.05).
+- [x] 3 modos: keyword exacta, emboscada solo-texto con aviso, `/troll` con menú.
+- [x] Historial 20 por guild (`record_history` al sonar) + `/history` con replay
+      (audio fresco) + alter `/historial`.
+- [x] CU-11 + manual + panel (`TROLL_CHANCE` en Config).
+- **Hecho cuando:** 64/64 tests + CU-11 verificado en Discord.
 - [ ] `music/trolls.py`: mapa búsqueda→URL fija + test (sin red).
 - [ ] Historial por guild (últimas 20, en memoria): lo escribe `core/voice.py`
       al terminar cada track; `/historial` lo muestra paginado como `/queue`.
 - **Hecho cuando:** tests de mapeo + historial en verde.
 
-## Sprint 9 — Ops: CI + Docker + nube (C-05, C-06, C-09)
+## Sprint 9 — Ops: CI + Docker + nube (C-05, C-06, C-09) 🔴 SIGUIENTE
 Ver explicación larga abajo (§ S9 en detalle).
 - [ ] C-05 GitHub Actions: `py_compile` + `unittest` en cada push/PR.
 - [ ] C-06 `Dockerfile` + `compose.yml` (FFmpeg vía apt, token por env).

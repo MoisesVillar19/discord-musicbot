@@ -65,6 +65,15 @@ quién la pidió. Si no hay nada: `🔇 No hay nada reproduciéndose.`
 | `/next` | ❌ | ❌ (solo lee) | ❌ |
 | `/remove n` | ❌ | Elimina la #n sin sonar | ❌ |
 
+## /troll — /history
+
+- `/troll`: menú con las canciones troll (`trolls.json` local). También se
+  activan escribiendo su keyword en `/play`, o por **emboscada**: con prob.
+  `TROLL_CHANCE` (default 0.05, 0 = off) un `/play` por texto suena un meme
+  al azar en vez de lo pedido. Solo aplica a texto, nunca a URLs.
+- `/history` (alter `/historial`): últimas 20 reproducidas + menú para
+  re-encolar (se resuelve audio fresco al sonar).
+
 ## /help
 
 Muestra la ayuda corta en el canal.

@@ -17,7 +17,8 @@ MAX_ALIASES = 5
 
 CANONICAL_COMMANDS = (
     "play", "pause", "resume", "skip", "next", "stop", "disconnect",
-    "queue", "nowplaying", "shuffle", "remove", "clear", "move", "help",
+    "queue", "nowplaying", "shuffle", "remove", "clear", "move",
+    "troll", "history", "help",
 )
 
 _NAME_RE = re.compile(r"^[\w-]{1,32}$")

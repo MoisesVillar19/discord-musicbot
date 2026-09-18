@@ -15,6 +15,12 @@ BOT_NAME = os.getenv("BOT_NAME", "MusicBot")
 _guild = os.getenv("GUILD_ID", "").strip()
 GUILD_ID = int(_guild) if _guild.isdigit() else None
 
+# Probabilidad (0.0-1.0) de emboscada troll en /play por texto. 0 = desactivado.
+try:
+    TROLL_CHANCE = min(1.0, max(0.0, float(os.getenv("TROLL_CHANCE", "0.05"))))
+except ValueError:
+    TROLL_CHANCE = 0.05
+
 FFMPEG_PATH = "bin/ffmpeg/ffmpeg.exe"
 
 YTDLP_OPTIONS = {

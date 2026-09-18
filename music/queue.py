@@ -8,6 +8,19 @@ from collections import deque
 
 SONG_QUEUES = {}
 
+HISTORY_MAX = 20
+HISTORY = {}
+
+
+def record_history(guild_id: str, track: dict) -> None:
+    """Guarda el track que empezó a sonar (máx HISTORY_MAX por guild)."""
+    hist = HISTORY.setdefault(guild_id, deque(maxlen=HISTORY_MAX))
+    hist.append(dict(track))
+
+
+def get_history(guild_id: str) -> list:
+    return list(HISTORY.get(guild_id, []))
+
 
 def get_queue(guild_id: str) -> deque:
     if guild_id not in SONG_QUEUES:

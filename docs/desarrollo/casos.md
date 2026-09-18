@@ -88,6 +88,12 @@
 - **Pasos:** `/play song_query:te quiero` → aparecen 5 opciones → elegir la 3.
 - **Esperado:** suena la opción 3 (no la 1); el menú expira a los 60 s sin romper nada.
 
+## CU-11 Trolls + historial (S8 B-08, C-08)
+- `/play song_query:trololo` → suena el troll fijo (keyword).
+- `/play <texto>` con `TROLL_CHANCE=1` → emboscada con aviso `🎭 ¡TROLEADO!`;
+  con `TROLL_CHANCE=0` nunca; URLs nunca son emboscadas.
+- `/troll` → menú, elegir suena. `/history` → lista 20 + re-encolar suena fresco.
+
 ## Matriz de prueba manual (pre-push de cada sprint)
 
 1. CU-01 texto, CU-02 URL video, CU-03 playlist `start:2 limit:3`.

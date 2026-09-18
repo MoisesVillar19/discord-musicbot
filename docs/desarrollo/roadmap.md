@@ -20,7 +20,7 @@
 | S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | ✅ Hecho |
 | S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | ✅ Hecho |
 | S7 Multi-resultados | `ytsearch5` + select (B-09) | ✅ Hecho |
-| S8 Trolls + historial | `music/trolls.py` + `/historial` (B-08, C-08) | 🔴 |
+| S8 Trolls + historial | 3 modos troll + `/history` replay (B-08, C-08) | ✅ Hecho |
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | 🔴 |
 | Futuro | `/lyrics` (spike), permisos DJ, panel v2 | 🔬/🔴 |
 
@@ -56,7 +56,7 @@
 | B-06 | `/move <origen> <destino>`, `/play … after:<n>` | ✅ | A-02 | S4 | `after:` es azúcar sobre `move`/insert |
 | B-11 | `/next` (peek) + `/skip [cantidad]` diferenciados | ✅ | A-02 | S6 | Tabla skip/next/remove en manual; alter `siguiente`→`/next` |
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
-| B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | S8 | Mapeo búsqueda→URL fija; bajo valor, divertido |
+| B-08 | Canciones troll (3 modos) + `/history` | ✅ | A-01 | S8 | Keyword, emboscada con chance, menú; replay fresco |
 | B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | ✅ | A-01 | S7 | Select efímero; voz recién al elegir |
 | B-10 | `/lyrics` (Genius/Musixmatch) | 🔬 | — | Futuro | Spike: auth, límites, ToS antes de prometer |
 
@@ -71,7 +71,7 @@
 | C-05 | `py_compile` + `unittest` en CI (Actions) | 🔴 | S9 | Sin FFmpeg ni token (tests mockean) |
 | C-06 | Dockerfile + compose (VPS) | 🔴 | S9 | FFmpeg vía apt, no `bin/` |
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
-| C-08 | Historial por guild (`/historial`) | 🔴 | S8 | Tras `NOW_PLAYING` |
+| C-08 | Historial por guild (`/history` + replay) | ✅ | S8 | 20 últimas, audio fresco |
 | C-09 | Hosting nube 24/7 (decisión, plan ideal futuro) | 🔴 | S9 | Ver `futuro-hosting-247.md`; no necesario ahora |
 
 ### D. Alters configurables + panel local (solo admin local, sin web)
