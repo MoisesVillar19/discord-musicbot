@@ -73,6 +73,13 @@
 | CB-12 | Alter que colisiona (`"skip": ["play"]`) | Arranque aborta indicando la colisión | 🔴 (S5 D-02) |
 | CB-13 | Renombrar un alter y re-sincronizar | Comando viejo desaparece, nuevo aparece (nota: global ~1h, guild instantáneo) | 🔴 (S5 D-04) |
 | CB-14 | Arrancar segunda instancia con el mismo token | Segundo proceso no conecta / mensaje claro en el panel | 🔴 (S5 D-05) |
+| CB-15 | Arrancar sin `aliases.json` | Se autocrea desde el ejemplo y el bot sigue (S5.1 D-07) | 🔴 |
+| CB-16 | Consola del panel vs `start_bot.bat` | Mismo detalle en vivo en ambas; al ocultar consola todo sigue en `logs/bot.log` | 🔴 (S5.1 D-08) |
+
+## CU-10 Multi-resultados (S7 B-09)
+- **Pre:** bot online, usuario en voz.
+- **Pasos:** `/play song_query:te quiero` → aparecen 5 opciones → elegir la 3.
+- **Esperado:** suena la opción 3 (no la 1); el menú expira a los 60 s sin romper nada.
 
 ## Matriz de prueba manual (pre-push de cada sprint)
 

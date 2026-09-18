@@ -86,12 +86,82 @@ Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
 - [ ] D-06 `panel.bat` + `icono.ico` + manual del panel en `docs/manuales/`.
 - **Hecho cuando:** CU-09/CB-11–CB-14 en verde + bot arranca y se opera solo desde el panel.
 
+## Sprint 5.1 — Seed + consola del panel ✅ PLANIFICADO
+**Objetivo:** cero fricción al clonar y consola visible en desarrollo.
+
+- [ ] D-07 `ensure_aliases()`: si falta `aliases.json`, crearlo desde
+      `aliases.example.json` y seguir; botón "↺ Restablecer" en el panel.
+      Test: arrancar sin archivo → se crea válido (CB-15).
+- [ ] D-08 El panel arranca el bot con **consola propia** (`CREATE_NEW_CONSOLE`):
+      mismo detalle en vivo que `start_bot.bat` + toggle "mostrar consola".
+      Producción = consola oculta, solo `logs/bot.log` (ver política abajo).
+- **Hecho cuando:** clonar → `panel.bat` → Iniciar funciona sin copiar nada;
+  la consola del bot muestra el log en vivo como en tu captura.
+
+### Política consola vs archivo (dev vs prod)
+- **Desarrollo (ahora):** consola siempre visible — `start_bot.bat` la abre, y el
+  panel abre una propia por bot. El detalle en vivo manda para depurar.
+- **Producción (luego):** consola oculta (toggle del panel), el bot escribe solo
+  a `logs/bot.log` (rotar si crece; hoy `FileHandler` simple). La pestaña 📋
+  del panel es entonces el visor principal.
+
+## Sprint 6 — R-01 Revisión de nombres base
+**Objetivo:** con los alters como red, cada comando queda con su nombre definitivo.
+- [ ] Repasar los 13 canónicos uno por uno ( Claridad, choques con alters, español).
+- [ ] Renombrar donde aplique; el nombre viejo puede quedar como alter de
+      compatibilidad (ej. canónico `/cola`, alter `/queue`, o al revés).
+- [ ] Actualizar `/help`, `docs/manuales/COMANDOS.md`, `aliases.example.json` y
+      justificar cada decisión en `auditoria.md`.
+- **Hecho cuando:** tabla nombre viejo → nuevo + motivo, sin tests rotos.
+
+## Sprint 7 — Multi-resultados (B-09)
+**Objetivo:** `/play <texto>` muestra 5 opciones con menú select en vez de
+encolar a ciegas el 1er resultado.
+- [ ] `search_ytdlp()` con modo `ytsearch5` (5 entradas completas, no flat).
+- [ ] `ui`: `discord.ui.Select` efímero (timeout 60 s) → encola la elegida.
+- [ ] CU-10 en `casos.md`.
+- **Hecho cuando:** elegir la opción 3 reproduce la 3 (no la 1).
+
+## Sprint 8 — Trolls + historial (B-08, C-08)
+- [ ] `music/trolls.py`: mapa búsqueda→URL fija + test (sin red).
+- [ ] Historial por guild (últimas 20, en memoria): lo escribe `core/voice.py`
+      al terminar cada track; `/historial` lo muestra paginado como `/queue`.
+- **Hecho cuando:** tests de mapeo + historial en verde.
+
+## Sprint 9 — Ops: CI + Docker + nube (C-05, C-06, C-09)
+Ver explicación larga abajo (§ S9 en detalle).
+- [ ] C-05 GitHub Actions: `py_compile` + `unittest` en cada push/PR.
+- [ ] C-06 `Dockerfile` + `compose.yml` (FFmpeg vía apt, token por env).
+- [ ] C-09 Decidir hosting 24/7 (ver comparativa abajo).
+- **Hecho cuando:** push en verde en Actions + `docker compose up` suena música.
+
+## S9 en detalle — qué es cada pieza y por qué
+### C-05 CI (GitHub Actions, gratis)
+Cada push/PR levanta un Ubuntu limpio, instala Python + dependencias y corre
+`py_compile` + `python -m unittest discover -s tests`. Si algo rompe, el push
+sale en rojo antes de que lo pruebes a mano. No necesita FFmpeg ni token porque
+los tests mockean red y voz. Costo: $0 (límites generosos en repos públicos).
+
+### C-06 Docker (imagen reproducible)
+`Dockerfile`: parte de `python:3.11-slim`, instala `ffmpeg` con apt (adiós
+`bin/` de 300 MB), copia el código, `CMD ["python", "bot.py"]`. `compose.yml`
+pasa el token sin exponerlo (`env_file: [.env]`). Sirve para: correr idéntico
+en tu PC, en un VPS o en la nube; y para no "en mi máquina sí funciona".
+
+### C-09 Nube 24/7 (opciones para proyecto personal)
+| Opción | Costo aprox. | Notas |
+|---|---|---|
+| Tu PC encendida | $0 | Vale hoy; se cae si la apagas (estado actual) |
+| Raspberry Pi en casa | ~$0 (hardware único) | Ideal personal: silenciosa, 24/7, Docker corre bien |
+| Oracle Cloud Free Tier | $0 | VPS gratis permanente (ARM 4 cores); requiere tarjeta y setup |
+| VPS barato (Hetzner/contabo) | ~€4–6/mes | Simple, Docker directo, sin sorpresas |
+| Railway/Render free | $0 con límites | Se duermen por inactividad → **no sirven** para un bot 24/7 |
+Recomendación: seguir local hasta cerrar S9; luego Raspberry u Oracle Free;
+VPS de pago solo si quieres cero mantenimiento.
+
 ## Futuro (sin sprint asignado)
-- B-09 multi-resultados con select · B-10 `/lyrics` (**spike previo**: auth/límites/ToS).
-- C-05 CI (ruff+tests) · C-06 Docker · C-07 permisos DJ · C-08 historial · C-09 nube 24/7.
-- **R-01 Revisión de nombres base:** terminados los sprints, repasar cada función
-  y decidir si su nombre canónico se corrige (los alters ya dan margen para
-  renombrar sin romper costumbre).
+- B-10 `/lyrics` (**spike previo**: auth/límites/ToS).
+- C-07 permisos DJ.
 - Panel v2: perfiles múltiples, tema moderno (`customtkinter`), más ajustes
   (volumen default, timeout autodisconnect, nivel de log).
 

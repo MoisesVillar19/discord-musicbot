@@ -17,7 +17,12 @@
 | S3 Playlists rápidas | `extract_flat`, validación URLs, JS runtime, límites documentados | ✅ Hecho |
 | S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | ✅ Hecho |
 | S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | ✅ Hecho |
-| Futuro | multi-resultados, `/lyrics`, permisos DJ, historial, nube, Docker, CI | 🔬/🔴 |
+| S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | 🔴 Siguiente |
+| S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | 🔴 |
+| S7 Multi-resultados | `ytsearch5` + select (B-09) | 🔴 |
+| S8 Trolls + historial | `music/trolls.py` + `/historial` (B-08, C-08) | 🔴 |
+| S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | 🔴 |
+| Futuro | `/lyrics` (spike), permisos DJ, panel v2 | 🔬/🔴 |
 
 ## Backlog
 
@@ -50,8 +55,8 @@
 | B-05 | `/remove <n>`, `/clear` | ✅ | A-02 | S4 | Validar rango; mensajes claros |
 | B-06 | `/move <origen> <destino>`, `/play … after:<n>` | ✅ | A-02 | S4 | `after:` es azúcar sobre `move`/insert |
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
-| B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | Futuro | Mapeo búsqueda→URL fija; bajo valor, divertido |
-| B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | 🔴 | A-01 | Futuro | Select menu; moderado |
+| B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | S8 | Mapeo búsqueda→URL fija; bajo valor, divertido |
+| B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | 🔴 | A-01 | S7 | Select menu; moderado |
 | B-10 | `/lyrics` (Genius/Musixmatch) | 🔬 | — | Futuro | Spike: auth, límites, ToS antes de prometer |
 
 ### C. Calidad y ops
@@ -62,11 +67,11 @@
 | C-02 | Tests `music/search.py` (mock yt-dlp) | ✅ | S1 | Mock `_extract` |
 | C-03 | Logger a archivo (`utils/logger.py`) sustituyendo `print` | ✅ | S2 | Testigos: voz y search |
 | C-04 | `start_bot.bat` portable (ruta relativa) | ✅ | S1 | Tarea menor |
-| C-05 | Ruff + `py_compile` en CI | 🔴 | Futuro | Tras estabilizar imports |
-| C-06 | Dockerfile + compose (VPS) | 🔴 | Futuro | FFmpeg vía apt, no `bin/` |
+| C-05 | `py_compile` + `unittest` en CI (Actions) | 🔴 | S9 | Sin FFmpeg ni token (tests mockean) |
+| C-06 | Dockerfile + compose (VPS) | 🔴 | S9 | FFmpeg vía apt, no `bin/` |
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
-| C-08 | Historial por guild | 🔴 | Futuro | Tras `NOW_PLAYING` |
-| C-09 | Hosting nube 24/7 | 🔴 | Futuro | Decisión de costo; local hasta S4 |
+| C-08 | Historial por guild (`/historial`) | 🔴 | S8 | Tras `NOW_PLAYING` |
+| C-09 | Hosting nube 24/7 | 🔴 | S9 | Ver comparativa en `sprints.md` §S9 |
 
 ### D. Alters configurables + panel local (solo admin local, sin web)
 
@@ -85,6 +90,13 @@
 | D-04 | `GUILD_ID` opcional para sync instantáneo en desarrollo | ✅ | D-03 | S5 | Los comandos globales tardan ~1h en propagar |
 | D-05 | Panel tkinter: perfiles, start/stop/restart, editor alters, editor `.env`, logs, re-sync | ✅ | D-03 | S5 | v1 simple: un bot local (perfiles múltiples → futuro); 1 perfil basta para N servidores |
 | D-06 | `panel.bat` + reutilizar `icono.ico` + manual del panel | ✅ | D-05 | S5 | — |
+| D-07 | `ensure_aliases()`: autocrear `aliases.json` + botón restablecer | 🔴 | D-02 | S5.1 | Clonar → correr sin copiar nada |
+| D-08 | Panel abre consola propia del bot + toggle (dev visible, prod oculta) | 🔴 | D-05 | S5.1 | Mismo detalle en vivo que `start_bot.bat` |
+
+### R. Revisión post-sprints
+| ID | Ítem | Estado | Sprint | Notas |
+|---|---|---|---|---|
+| R-01 | Revisión de nombres base canónicos | 🔴 | S6 | Alters como red de compatibilidad; justificar en `auditoria.md` |
 
 ## Qué se declara obsoleto (no entra al roadmap)
 

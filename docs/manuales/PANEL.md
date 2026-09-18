@@ -20,13 +20,18 @@ disponible para correr el bot sin panel (headless).
 ## Botones
 
 - **▶ Iniciar / ⏹ Detener / ↻ Reiniciar:** el panel corre `bot.py` como
-  subproceso; el punto ● indica estado. Solo una instancia: Discord desconecta
-  un segundo proceso con el mismo token.
+  subproceso en **consola propia** (mismo detalle en vivo que `start_bot.bat`,
+  ver tu captura: login, gateway, `is online!`); el punto ● indica estado.
+  Solo una instancia: Discord desconecta un segundo proceso con el mismo token.
+  Hay toggle "mostrar consola": en desarrollo visible, en producción oculta
+  (entonces el visor 📋 + `logs/bot.log` son la fuente de verdad).
 
 ## Primeros alters
 
-1. En **🎭 Alters**, pon p. ej. `jugar, rolita` en `/play`.
-2. **Guardar** → **Reiniciar**.
-3. Si tienes `GUILD_ID` en **⚙️ Config**, el `/jugar` aparece al instante;
+1. Nada que copiar: al arrancar, el bot crea `aliases.json` solo desde la
+   plantilla (o **↺ Restablecer** en el panel).
+2. En **🎭 Alters**, pon p. ej. `jugar, rolita` en `/play`.
+3. **Guardar** → **Reiniciar**.
+4. Si tienes `GUILD_ID` en **⚙️ Config**, el `/jugar` aparece al instante;
    sin él, el sync global tarda hasta ~1 h.
-4. `/help` lista los alters activos.
+5. `/help` lista los alters activos.
