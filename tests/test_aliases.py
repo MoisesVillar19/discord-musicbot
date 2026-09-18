@@ -1,4 +1,5 @@
 """Tests de core/aliases.py (validación pura)."""
+
 import unittest
 
 from core.aliases import (
@@ -59,9 +60,10 @@ class AliasesTest(unittest.TestCase):
 
     def test_ejemplo_del_repo_es_valido(self):
         import os
+
         repo_example = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            ALIASES_EXAMPLE)
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ALIASES_EXAMPLE
+        )
         d = load_aliases(repo_example)
         total = sum(len(v) for v in d.values())
         self.assertGreater(total, 0)

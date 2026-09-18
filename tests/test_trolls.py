@@ -1,4 +1,5 @@
 """Tests de music/trolls.py e historial (puros, sin red)."""
+
 import os
 import tempfile
 import unittest
@@ -8,9 +9,15 @@ from music.queue import HISTORY, get_history, record_history
 
 
 def _track(title):
-    return {"title": title, "url": "http://a", "webpage_url": "http://p",
-            "duration": 1, "uploader": None, "thumbnail": None,
-            "requested_by": "x"}
+    return {
+        "title": title,
+        "url": "http://a",
+        "webpage_url": "http://p",
+        "duration": 1,
+        "uploader": None,
+        "thumbnail": None,
+        "requested_by": "x",
+    }
 
 
 class TrollsTest(unittest.TestCase):
@@ -44,8 +51,9 @@ class TrollsTest(unittest.TestCase):
             self.assertTrue(os.path.isfile(target))
 
     def test_ejemplo_repo_valido(self):
-        repo = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.abspath(__file__))), T.TROLLS_EXAMPLE)
+        repo = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), T.TROLLS_EXAMPLE
+        )
         data = T.load_trolls(repo)
         self.assertGreaterEqual(len(data), 1)
         for t in data:

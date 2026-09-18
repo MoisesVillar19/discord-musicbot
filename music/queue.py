@@ -3,6 +3,7 @@
 Cada cola es un deque de Track (dict, ver docs/desarrollo/diccionario.md).
 Posiciones públicas en comandos: base 1 (la #1 es la siguiente en sonar).
 """
+
 import random
 from collections import deque
 

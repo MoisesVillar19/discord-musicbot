@@ -1,0 +1,4 @@
+# Dependencias solo-dev (CI + local). No van a la imagen Docker.
+-r requirements.txt
+ruff==0.16.8
+coverage==7.16.1

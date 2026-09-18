@@ -1,14 +1,22 @@
 # Importing libraries and modules
-import asyncio
 import discord
 from discord.ext import commands
 from discord import app_commands
 
-from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME, GUILD_ID, TROLL_CHANCE
-from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track, drop_first
+from config import TOKEN, FFMPEG_PATH, BOT_NAME, GUILD_ID, TROLL_CHANCE
+from music.queue import (
+    get_queue,
+    clear_queue,
+    peek_queue,
+    shuffle_queue,
+    remove_track,
+    move_track,
+    drop_first,
+)
 from utils.errors import MusicBotError, user_message
 from utils.logger import log
 from core import voice as voice_mgr
+from core.aliases import AliasError, ensure_aliases
 
 if not TOKEN:
     raise RuntimeError(
@@ -23,6 +31,7 @@ intents.message_content = True
 
 # Bot setup
 bot = commands.Bot(command_prefix="!", intents=intents)
+
 
 # Bot ready-up code
 @bot.event
@@ -86,13 +95,16 @@ async def next_song(interaction: discord.Interaction):
     tracks = peek_queue(str(interaction.guild_id))
     if not tracks:
         return await interaction.response.send_message(
-            "🔇 No hay siguiente: se acaba la cola.", ephemeral=True)
+            "🔇 No hay siguiente: se acaba la cola.", ephemeral=True
+        )
     await interaction.response.send_message(
-        f"⏭ **Siguiente:**\n1. {track_line(tracks[0])}", ephemeral=True)
+        f"⏭ **Siguiente:**\n1. {track_line(tracks[0])}", ephemeral=True
+    )
 
 
-
-@bot.tree.command(name="pause", description="Pausa la canción que se está reproduciendo actualmente.")
+@bot.tree.command(
+    name="pause", description="Pausa la canción que se está reproduciendo actualmente."
+)
 async def pause(interaction: discord.Interaction):
     try:
         voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
@@ -103,8 +115,10 @@ async def pause(interaction: discord.Interaction):
 
     # Check if something is actually playing
     if not voice_client.is_playing():
-        return await interaction.response.send_message("Cri cri, no estoy reproduciendo nada ahora mismo.")
-    
+        return await interaction.response.send_message(
+            "Cri cri, no estoy reproduciendo nada ahora mismo."
+        )
+
     # Pause the track
     voice_client.pause()
     await interaction.response.send_message("⏸️ Reproducción pausada!")
@@ -122,7 +136,7 @@ async def resume(interaction: discord.Interaction):
     # Check if it's actually paused
     if not voice_client.is_paused():
         return await interaction.response.send_message("Cri cri, no estoy pausado ahora mismo.")
-    
+
     # Resume playback
     voice_client.resume()
     await interaction.response.send_message("▶️ Reproducción reanudada!")
@@ -145,7 +159,9 @@ async def stop(interaction: discord.Interaction):
     await msg.edit(content="⛔ Reproducción detenida.")
 
 
-@bot.tree.command(name="disconnect", description="Desconecta al bot del canal de voz (conserva la cola).")
+@bot.tree.command(
+    name="disconnect", description="Desconecta al bot del canal de voz (conserva la cola)."
+)
 async def disconnect(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
 
@@ -164,14 +180,9 @@ async def disconnect(interaction: discord.Interaction):
 @app_commands.describe(
     song_query="Nombre o URL",
     start="Desde qué canción empezar (playlist)",
-    limit="Cantidad máxima a agregar"
+    limit="Cantidad máxima a agregar",
 )
-async def play(
-    interaction: discord.Interaction,
-    song_query: str,
-    start: int = 1,
-    limit: int = 100
-):
+async def play(interaction: discord.Interaction, song_query: str, start: int = 1, limit: int = 100):
     await interaction.response.defer()
 
     if interaction.user.voice is None:
@@ -193,7 +204,6 @@ async def play(
     vc = None  # se conecta abajo (URL) o al elegir (menú texto)
 
     from music.search import search_many, search_ytdlp
-    from utils.validators import TEXT
     from ui.embeds import format_duration, track_line
 
     # Texto libre -> keyword troll, emboscada o menú (S7 + S8). Sin entrar a voz aún.
@@ -213,10 +223,11 @@ async def play(
                 await interaction.followup.send("❌ No se encontraron resultados.")
                 return
             _enqueue(str(interaction.guild_id), interaction.user.display_name, tracks)
-            note = ("🎭 ¡TROLEADO! Pediste "
-                    f"**{song_query}** y suena **{tracks[0].get('title')}**."
-                    if ambush else
-                    f"🎭 **{tracks[0].get('title')}** (pedido por keyword).")
+            note = (
+                f"🎭 ¡TROLEADO! Pediste **{song_query}** y suena **{tracks[0].get('title')}**."
+                if ambush
+                else f"🎭 **{tracks[0].get('title')}** (pedido por keyword)."
+            )
             await interaction.followup.send(note)
             await _maybe_start(interaction, vc)
             return
@@ -247,34 +258,40 @@ async def play(
             async def pick(self, sel: discord.Interaction, select):
                 if sel.user.id != interaction.user.id:
                     return await sel.response.send_message(
-                        "❌ Solo quien pidió puede elegir.", ephemeral=True)
+                        "❌ Solo quien pidió puede elegir.", ephemeral=True
+                    )
                 if interaction.user.voice is None:
                     return await sel.response.send_message(
-                        "🎧 Debes estar en un canal de voz.", ephemeral=True)
-                track = options[int(select.values[0])]
+                        "🎧 Debes estar en un canal de voz.", ephemeral=True
+                    )
+                track = _pick_track(options, select.values[0])
+                if track is None:
+                    return await sel.response.send_message("❌ Opción inválida.", ephemeral=True)
                 vc2 = await voice_mgr.ensure_voice(interaction)
-                _enqueue(str(interaction.guild_id),
-                         interaction.user.display_name, [track])
+                _enqueue(str(interaction.guild_id), interaction.user.display_name, [track])
                 await sel.response.edit_message(
-                    content=f"🎵 Agregada: **{track.get('title')}**", view=None)
+                    content=f"🎵 Agregada: **{track.get('title')}**", view=None
+                )
                 await _maybe_start(interaction, vc2)
 
             async def on_timeout(self):
                 try:
                     await interaction.edit_original_response(
-                        content="⌛ Menú expirado. Usa /play de nuevo.", view=None)
+                        content="⌛ Menú expirado. Usa /play de nuevo.", view=None
+                    )
                 except Exception:
                     pass
 
         lines = [f"{i}. {track_line(t)}" for i, t in enumerate(options, start=1)]
         await interaction.followup.send(
             "🔎 **Resultados para:** " + song_query + "\n" + "\n".join(lines),
-            view=PickView(), ephemeral=True)
+            view=PickView(),
+            ephemeral=True,
+        )
         return
 
     vc = await voice_mgr.ensure_voice(interaction)
     tracks, total, unavailable = await search_ytdlp(song_query, limit, start_index)
-
 
     if not tracks:
         await interaction.followup.send("❌ No se encontraron resultados.")
@@ -284,10 +301,7 @@ async def play(
 
     # 🎁 Mensaje bonus
     if total > 1:
-        msg = (
-        "📂 **Playlist detectada**\n"
-        f"➕ Agregadas **{len(tracks)}** canciones\n"
-         )
+        msg = f"📂 **Playlist detectada**\n➕ Agregadas **{len(tracks)}** canciones\n"
 
         if unavailable > 0:
             msg += f"⚠️ **{unavailable}** no disponibles\n"
@@ -300,6 +314,13 @@ async def play(
 
     await _maybe_start(interaction, vc)
 
+
+def _pick_track(options: list, value: str):
+    """Elige track del menú por value (puro, testeable). None si inválido."""
+    try:
+        return options[int(value)]
+    except (IndexError, TypeError, ValueError):
+        return None
 
 
 def _enqueue(guild_id: str, display_name: str, tracks: list) -> None:
@@ -317,7 +338,6 @@ async def _maybe_start(interaction, vc) -> None:
         start_now = not vc.is_playing() and not vc.is_paused()
     if start_now:
         await voice_mgr.play_next_song(vc, guild_id, interaction.channel, bot.loop)
-
 
 
 @bot.tree.command(name="help", description="Ver comandos del bot")
@@ -342,6 +362,8 @@ async def help(interaction: discord.Interaction):
             lines.append(f"· /{canonical}: " + ", ".join(f"/{a}" for a in alters))
     lines += ["", "🔥 ¡Disfruta la música!"]
     await interaction.response.send_message("\n".join(lines))
+
+
 @bot.tree.command(name="queue", description="Muestra la cola de canciones actuales.")
 async def queue(interaction: discord.Interaction):
     from ui.embeds import QUEUE_PER_PAGE, queue_page_embed, queue_pages
@@ -357,8 +379,9 @@ async def queue(interaction: discord.Interaction):
         def _render(self):
             total_pages = len(pages)
             offset = (self.page - 1) * QUEUE_PER_PAGE
-            return queue_page_embed(pages[self.page - 1], self.page,
-                                    total_pages, len(tracks), offset)
+            return queue_page_embed(
+                pages[self.page - 1], self.page, total_pages, len(tracks), offset
+            )
 
         def _sync_buttons(self):
             self.prev_btn.disabled = self.page <= 1
@@ -388,7 +411,8 @@ async def nowplaying(interaction: discord.Interaction):
     track = voice_mgr.NOW_PLAYING.get(str(interaction.guild_id))
     if not track:
         return await interaction.response.send_message(
-            "🔇 No hay nada reproduciéndose.", ephemeral=True)
+            "🔇 No hay nada reproduciéndose.", ephemeral=True
+        )
     await interaction.response.send_message(embed=now_playing_embed(track), ephemeral=True)
 
 
@@ -421,9 +445,11 @@ async def remove(interaction: discord.Interaction, posicion: int):
     track = remove_track(str(interaction.guild_id), posicion)
     if track is None:
         return await interaction.response.send_message(
-            "❌ Posición inválida. Revisa /queue.", ephemeral=True)
+            "❌ Posición inválida. Revisa /queue.", ephemeral=True
+        )
     await interaction.response.send_message(
-        f"🗑️ Eliminada: **{track.get('title', 'Untitled')}**", ephemeral=True)
+        f"🗑️ Eliminada: **{track.get('title', 'Untitled')}**", ephemeral=True
+    )
 
 
 @bot.tree.command(name="clear", description="Vacía la cola (sigue sonando la actual).")
@@ -442,11 +468,11 @@ async def move(interaction: discord.Interaction, origen: int, destino: int):
     if err:
         return await interaction.response.send_message(err, ephemeral=True)
     if move_track(str(interaction.guild_id), origen, destino):
-        await interaction.response.send_message(
-            f"↔️ Movida #{origen} → #{destino}.", ephemeral=True)
+        await interaction.response.send_message(f"↔️ Movida #{origen} → #{destino}.", ephemeral=True)
     else:
         await interaction.response.send_message(
-            "❌ Posiciones inválidas. Revisa /queue.", ephemeral=True)
+            "❌ Posiciones inválidas. Revisa /queue.", ephemeral=True
+        )
 
 
 @bot.tree.command(name="troll", description="Menú de canciones troll.")
@@ -456,7 +482,8 @@ async def troll(interaction: discord.Interaction):
     troll_list = ensure_trolls()
     if not troll_list:
         return await interaction.response.send_message(
-            "🎭 No hay trolls configurados (trolls.json).", ephemeral=True)
+            "🎭 No hay trolls configurados (trolls.json).", ephemeral=True
+        )
 
     class TrollView(discord.ui.View):
         def __init__(self):
@@ -464,16 +491,20 @@ async def troll(interaction: discord.Interaction):
 
         @discord.ui.select(
             placeholder="🎭 Elige tu víctima…",
-            options=[discord.SelectOption(label=t["name"][:100], value=str(i))
-                     for i, t in enumerate(troll_list)],
+            options=[
+                discord.SelectOption(label=t["name"][:100], value=str(i))
+                for i, t in enumerate(troll_list)
+            ],
         )
         async def pick(self, sel: discord.Interaction, select):
             if sel.user.id != interaction.user.id:
                 return await sel.response.send_message(
-                    "❌ Solo quien pidió puede elegir.", ephemeral=True)
+                    "❌ Solo quien pidió puede elegir.", ephemeral=True
+                )
             if interaction.user.voice is None:
                 return await sel.response.send_message(
-                    "🎧 Debes estar en un canal de voz.", ephemeral=True)
+                    "🎧 Debes estar en un canal de voz.", ephemeral=True
+                )
             from music.search import search_ytdlp
 
             troll = troll_list[int(select.values[0])]
@@ -481,14 +512,15 @@ async def troll(interaction: discord.Interaction):
             tracks, _, _ = await search_ytdlp(troll["url"], 1, 0)
             if not tracks:
                 return await sel.response.send_message(
-                    "❌ No se pudo resolver el troll.", ephemeral=True)
+                    "❌ No se pudo resolver el troll.", ephemeral=True
+                )
             _enqueue(str(interaction.guild_id), interaction.user.display_name, tracks)
             await sel.response.edit_message(
-                content=f"🎭 Troleo en camino: **{tracks[0].get('title')}**", view=None)
+                content=f"🎭 Troleo en camino: **{tracks[0].get('title')}**", view=None
+            )
             await _maybe_start(interaction, vc)
 
-    await interaction.response.send_message(
-        "🎭 **Menú troll:**", view=TrollView(), ephemeral=True)
+    await interaction.response.send_message("🎭 **Menú troll:**", view=TrollView(), ephemeral=True)
 
 
 @bot.tree.command(name="history", description="Últimas canciones + re-encolar.")
@@ -498,8 +530,7 @@ async def history(interaction: discord.Interaction):
 
     hist = get_history(str(interaction.guild_id))
     if not hist:
-        return await interaction.response.send_message(
-            "📜 Historial vacío.", ephemeral=True)
+        return await interaction.response.send_message("📜 Historial vacío.", ephemeral=True)
 
     class HistView(discord.ui.View):
         def __init__(self):
@@ -507,34 +538,37 @@ async def history(interaction: discord.Interaction):
 
         @discord.ui.select(
             placeholder="📜 Re-encolar…",
-            options=[discord.SelectOption(
-                label=t.get("title", "Untitled")[:100], value=str(i))
-                for i, t in enumerate(hist)],
+            options=[
+                discord.SelectOption(label=t.get("title", "Untitled")[:100], value=str(i))
+                for i, t in enumerate(hist)
+            ],
         )
         async def pick(self, sel: discord.Interaction, select):
             if sel.user.id != interaction.user.id:
                 return await sel.response.send_message(
-                    "❌ Solo quien pidió puede elegir.", ephemeral=True)
+                    "❌ Solo quien pidió puede elegir.", ephemeral=True
+                )
             if interaction.user.voice is None:
                 return await sel.response.send_message(
-                    "🎧 Debes estar en un canal de voz.", ephemeral=True)
+                    "🎧 Debes estar en un canal de voz.", ephemeral=True
+                )
             track = dict(hist[int(select.values[0])])
             track["url"] = None  # forzar resolución fresca al sonar
             vc = await voice_mgr.ensure_voice(interaction)
             _enqueue(str(interaction.guild_id), interaction.user.display_name, [track])
             await sel.response.edit_message(
-                content=f"🎵 Re-encolada: **{track.get('title')}**", view=None)
+                content=f"🎵 Re-encolada: **{track.get('title')}**", view=None
+            )
             await _maybe_start(interaction, vc)
 
     lines = [f"{i}. {track_line(t)}" for i, t in enumerate(hist, start=1)]
     await interaction.response.send_message(
-        "📜 **Historial:**\n" + "\n".join(lines), view=HistView(), ephemeral=True)
+        "📜 **Historial:**\n" + "\n".join(lines), view=HistView(), ephemeral=True
+    )
 
 
 # --- Alters configurables (Sprint 5, D-03) ---
 # Cada alter es un slash command propio que reutiliza el callback del canónico.
-from core.aliases import AliasError, ensure_aliases
-
 try:
     ALIASES = ensure_aliases()
 except AliasError as e:
@@ -554,5 +588,6 @@ for _canonical, _alters in ALIASES.items():
         log.info("Alter registrado: /%s -> /%s", _alt, _canonical)
 
 
-# Run the bot
-bot.run(TOKEN)
+if __name__ == "__main__":
+    # Run the bot
+    bot.run(TOKEN)

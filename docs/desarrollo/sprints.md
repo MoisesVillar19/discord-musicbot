@@ -153,11 +153,17 @@ encolar a ciegas el 1er resultado.
 - [x] C-09 Plan ideal en `futuro-hosting-247.md` (local hasta nuevo aviso).
 - **Hecho cuando:** push en verde en Actions + `docker compose up` suena música.
 Ver explicación larga abajo (§ S9 en detalle).
-- [ ] C-05 GitHub Actions: `py_compile` + `unittest` en cada push/PR.
-- [ ] C-06 `Dockerfile` + `compose.yml` (FFmpeg vía apt, token por env).
-- [ ] C-09 Decidir hosting 24/7: plan ideal documentado en
-  `futuro-hosting-247.md` (no necesario ahora; local hasta nuevo aviso).
-- **Hecho cuando:** push en verde en Actions + `docker compose up` suena música.
+
+## Sprint 10 — Calidad (T-01…T-04) ✅ HECHO
+Detalle y pendientes en `plan-calidad.md`.
+- [x] T-01 Unitarios extra (`panel/config_store.py` + bordes + historial + move).
+- [x] T-02 Handlers con fakes (`test_handlers.py`: skip/remove/pause/stop/...) +
+      `_pick_track` puro + voz (`stop_playback`, `_finish`, `play_next`).
+      `bot.py` importable (guard `__main__`).
+- [x] T-03 Ruff + coverage ≥70% (CI + local): `requirements-dev.txt`,
+      `pyproject.toml`. 86 tests, ruff limpio, coverage 71%.
+- [x] T-04 Job docker build en CI (sin publicar).
+- **Hecho cuando:** 80+ tests, ruff limpio, coverage ≥70%, run verde (tests + docker).
 
 ## S9 en detalle — qué es cada pieza y por qué
 ### C-05 CI (GitHub Actions, gratis)

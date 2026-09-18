@@ -7,6 +7,7 @@ gitignored); el repo trae aliases.example.json como plantilla.
 Reglas: minúsculas, ^[\\w-]{1,32}$ (límite Discord), máx 5 por comando, sin
 colisionar con canónicos ni entre sí. Los canónicos no se tocan.
 """
+
 import json
 import os
 import re
@@ -16,9 +17,22 @@ ALIASES_EXAMPLE = "aliases.example.json"
 MAX_ALIASES = 5
 
 CANONICAL_COMMANDS = (
-    "play", "pause", "resume", "skip", "next", "stop", "disconnect",
-    "queue", "nowplaying", "shuffle", "remove", "clear", "move",
-    "troll", "history", "help",
+    "play",
+    "pause",
+    "resume",
+    "skip",
+    "next",
+    "stop",
+    "disconnect",
+    "queue",
+    "nowplaying",
+    "shuffle",
+    "remove",
+    "clear",
+    "move",
+    "troll",
+    "history",
+    "help",
 )
 
 _NAME_RE = re.compile(r"^[\w-]{1,32}$")
@@ -62,8 +76,7 @@ def validate_aliases(data: dict) -> dict:
                 raise AliasError(f"Alter inválido en '{canonical}': debe ser texto.")
             a = alt.strip().lower()
             if not _NAME_RE.match(a):
-                raise AliasError(
-                    f"Alter inválido '{alt}': minúsculas, letras/números/_/-, máx 32.")
+                raise AliasError(f"Alter inválido '{alt}': minúsculas, letras/números/_/-, máx 32.")
             if a in seen:
                 raise AliasError(f"Alter '{a}' colisiona con otro comando o alter.")
             seen.add(a)
@@ -80,8 +93,7 @@ def save_aliases(data: dict, path: str = ALIASES_FILE) -> None:
         f.write("\n")
 
 
-def ensure_aliases(path: str = ALIASES_FILE,
-                   example: str = ALIASES_EXAMPLE) -> dict:
+def ensure_aliases(path: str = ALIASES_FILE, example: str = ALIASES_EXAMPLE) -> dict:
     """Crea aliases.json desde el ejemplo si falta y lo devuelve validado.
 
     Así clonar y correr funciona sin copiar nada a mano; tus cambios quedan
@@ -98,8 +110,7 @@ def ensure_aliases(path: str = ALIASES_FILE,
     return load_aliases(path)
 
 
-def reset_aliases(path: str = ALIASES_FILE,
-                  example: str = ALIASES_EXAMPLE) -> dict:
+def reset_aliases(path: str = ALIASES_FILE, example: str = ALIASES_EXAMPLE) -> dict:
     """Regenera aliases.json desde el ejemplo (botón del panel)."""
     if os.path.isfile(path):
         os.remove(path)

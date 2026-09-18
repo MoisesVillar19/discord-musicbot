@@ -4,6 +4,7 @@ Soporta:
 - URLs directas de YouTube (video o playlist)
 - Texto libre (usa ytsearch automáticamente)
 """
+
 import yt_dlp
 import asyncio
 
@@ -100,7 +101,7 @@ async def search_ytdlp(query: str, max_tracks: int = 50, start_index: int = 0):
 
         # Playlist real (entradas flat): paginar con start/limit
         total = len(entries)
-        sliced = entries[start_index:start_index + max_tracks]
+        sliced = entries[start_index : start_index + max_tracks]
         unavailable = 0
         for e in sliced:
             t = _track_from_entry(e, flat=True)
@@ -145,7 +146,8 @@ async def search_many(query: str, n: int = 5) -> list:
     opts["noplaylist"] = True
     try:
         info = await loop.run_in_executor(
-            None, lambda: _extract(f"ytsearch{n}:{query.strip()}", opts))
+            None, lambda: _extract(f"ytsearch{n}:{query.strip()}", opts)
+        )
     except Exception as e:
         print(f"[yt-dlp] Error: {e}")
         return []

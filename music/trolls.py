@@ -4,6 +4,7 @@ Tres modos: emboscada aleatoria en /play (ratio bajo, configurable),
 keyword exacta y comando /troll. Lista en trolls.json (local) con
 trolls.example.json como semilla.
 """
+
 import json
 import os
 import random

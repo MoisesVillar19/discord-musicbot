@@ -1,4 +1,5 @@
 """Tests de ui/embeds.py (formato puro, sin Discord real)."""
+
 import unittest
 
 from ui.embeds import (
@@ -37,8 +38,9 @@ class EmbedsTest(unittest.TestCase):
         self.assertIn("DJ", line)
 
     def test_track_line_minima(self):
-        line = track_line({"title": None, "webpage_url": None,
-                           "duration": None, "requested_by": None})
+        line = track_line(
+            {"title": None, "webpage_url": None, "duration": None, "requested_by": None}
+        )
         self.assertIn("Untitled", line)
 
     def test_now_playing_rico(self):
@@ -57,6 +59,12 @@ class EmbedsTest(unittest.TestCase):
         e = queue_page_embed(pages[1], 2, 3, 25, QUEUE_PER_PAGE)
         self.assertIn("Página 2/3", e.footer.text)
         self.assertIn("11.", e.description)  # offset base 1
+
+    def test_bordes_pagina(self):
+        self.assertEqual(len(queue_pages([_track(i) for i in range(10)])), 1)
+        self.assertEqual(len(queue_pages([_track(i) for i in range(11)])), 2)
+        pages = queue_pages([_track(i) for i in range(20)])
+        self.assertEqual([len(p) for p in pages], [10, 10])
 
     def test_cola_vacia_una_pagina(self):
         pages = queue_pages([])

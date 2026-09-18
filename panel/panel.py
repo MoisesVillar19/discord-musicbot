@@ -4,6 +4,7 @@ Arranca/detiene el bot como subproceso, edita alters (máx 5 por comando,
 canónicos protegidos) y .env, y muestra el log. v1: un solo bot local
 (perfiles múltiples queda como mejora futura).
 """
+
 import os
 import subprocess
 import sys
@@ -48,8 +49,7 @@ class Panel(tk.Tk):
             s.theme_use("clam")
         except tk.TclError:
             pass
-        s.configure(".", background=BG, foreground=FG, fieldbackground=BG2,
-                    font=("Segoe UI", 10))
+        s.configure(".", background=BG, foreground=FG, fieldbackground=BG2, font=("Segoe UI", 10))
         s.configure("TNotebook", background=BG, borderwidth=0)
         s.configure("TNotebook.Tab", background=BG2, foreground=FG, padding=(12, 6))
         s.configure("TFrame", background=BG)
@@ -60,30 +60,33 @@ class Panel(tk.Tk):
     def _build(self):
         top = ttk.Frame(self, padding=10)
         top.pack(fill="x")
-        self.status = ttk.Label(top, text="● Offline", foreground="#f44336",
-                                font=("Segoe UI", 12, "bold"))
+        self.status = ttk.Label(
+            top, text="● Offline", foreground="#f44336", font=("Segoe UI", 12, "bold")
+        )
         self.status.pack(side="left")
         # Desarrollo: consola visible. Producción: ocultar (ver manual PANEL).
         self.show_console = tk.BooleanVar(value=True)
-        ttk.Checkbutton(top, text="Consola", variable=self.show_console).pack(
-            side="right", padx=4)
-        for label, cmd in (("▶ Iniciar", self.start_bot),
-                           ("⏹ Detener", self.stop_bot),
-                           ("↻ Reiniciar", self.restart_bot)):
+        ttk.Checkbutton(top, text="Consola", variable=self.show_console).pack(side="right", padx=4)
+        for label, cmd in (
+            ("▶ Iniciar", self.start_bot),
+            ("⏹ Detener", self.stop_bot),
+            ("↻ Reiniciar", self.restart_bot),
+        ):
             ttk.Button(top, text=label, command=cmd).pack(side="right", padx=4)
 
         tabs = ttk.Notebook(self)
         tabs.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
-        self.log_box = tk.Text(tabs, bg="#111", fg="#cfc", font=("Consolas", 9),
-                               state="disabled")
+        self.log_box = tk.Text(tabs, bg="#111", fg="#cfc", font=("Consolas", 9), state="disabled")
         tabs.add(self.log_box, text="📋 Logs")
 
         alias_frame = ttk.Frame(tabs, padding=10)
         tabs.add(alias_frame, text="🎭 Alters")
-        ttk.Label(alias_frame,
-                  text=f"Máx {MAX_ALIASES} por comando. Los nombres base no se tocan. "
-                       "Guardar + reiniciar para aplicar.").pack(anchor="w", pady=(0, 8))
+        ttk.Label(
+            alias_frame,
+            text=f"Máx {MAX_ALIASES} por comando. Los nombres base no se tocan. "
+            "Guardar + reiniciar para aplicar.",
+        ).pack(anchor="w", pady=(0, 8))
         self.alias_vars = {}
         for cmd in CANONICAL_COMMANDS:
             row = ttk.Frame(alias_frame)
@@ -91,14 +94,16 @@ class Panel(tk.Tk):
             ttk.Label(row, text=f"/{cmd}", width=14).pack(side="left")
             self.alias_vars[cmd] = tk.StringVar()
             ttk.Entry(row, textvariable=self.alias_vars[cmd]).pack(
-                side="left", fill="x", expand=True, padx=6)
+                side="left", fill="x", expand=True, padx=6
+            )
         btns = ttk.Frame(alias_frame)
         btns.pack(fill="x", pady=8)
         ttk.Button(btns, text="💾 Guardar alters", command=self.save_aliases_ui).pack(side="left")
         ttk.Button(btns, text="↺ Recargar", command=self.load_aliases_ui).pack(side="left", padx=6)
         ttk.Button(btns, text="🧹 Restablecer", command=self.reset_aliases_ui).pack(side="left")
-        ttk.Label(alias_frame, text="Separa con comas. Vacío = sin alters.",
-                  font=("Segoe UI", 9)).pack(anchor="w")
+        ttk.Label(
+            alias_frame, text="Separa con comas. Vacío = sin alters.", font=("Segoe UI", 9)
+        ).pack(anchor="w")
 
         cfg_frame = ttk.Frame(tabs, padding=10)
         tabs.add(cfg_frame, text="⚙️ Config")
@@ -110,11 +115,16 @@ class Panel(tk.Tk):
             show = "" if key != "DISCORD_TOKEN" else "*"
             self.cfg_vars[key] = tk.StringVar()
             ttk.Entry(row, textvariable=self.cfg_vars[key], show=show).pack(
-                side="left", fill="x", expand=True)
-        ttk.Button(cfg_frame, text="💾 Guardar config",
-                   command=self.save_config_ui).pack(anchor="w", pady=8)
-        ttk.Label(cfg_frame, text="Cambios de config y alters requieren reiniciar el bot.",
-                  font=("Segoe UI", 9)).pack(anchor="w")
+                side="left", fill="x", expand=True
+            )
+        ttk.Button(cfg_frame, text="💾 Guardar config", command=self.save_config_ui).pack(
+            anchor="w", pady=8
+        )
+        ttk.Label(
+            cfg_frame,
+            text="Cambios de config y alters requieren reiniciar el bot.",
+            font=("Segoe UI", 9),
+        ).pack(anchor="w")
 
         self.load_aliases_ui()
         self.load_config_ui()
@@ -145,8 +155,9 @@ class Panel(tk.Tk):
 
     def _tick(self):
         running = self.proc is not None and self.proc.poll() is None
-        self.status.config(text="● Online" if running else "● Offline",
-                           foreground=ACCENT if running else "#f44336")
+        self.status.config(
+            text="● Online" if running else "● Offline", foreground=ACCENT if running else "#f44336"
+        )
         self._refresh_log()
         self.after(2000, self._tick)
 
@@ -173,8 +184,10 @@ class Panel(tk.Tk):
             var.set(", ".join(data.get(cmd, [])))
 
     def save_aliases_ui(self):
-        data = {cmd: [a for a in (var.get().split(",")) if a.strip()]
-                for cmd, var in self.alias_vars.items()}
+        data = {
+            cmd: [a for a in (var.get().split(",")) if a.strip()]
+            for cmd, var in self.alias_vars.items()
+        }
         try:
             save_aliases(data, os.path.join(ROOT, ALIASES_FILE))
         except AliasError as e:
@@ -183,12 +196,14 @@ class Panel(tk.Tk):
         messagebox.showinfo("OK", "Alters guardados. Reinicia el bot para aplicar.")
 
     def reset_aliases_ui(self):
-        if not messagebox.askyesno("Restablecer",
-                                    "Regenerar aliases.json desde el ejemplo? Se pierden tus cambios."):
+        if not messagebox.askyesno(
+            "Restablecer", "Regenerar aliases.json desde el ejemplo? Se pierden tus cambios."
+        ):
             return
         try:
-            data = reset_aliases(os.path.join(ROOT, ALIASES_FILE),
-                                 os.path.join(ROOT, ALIASES_EXAMPLE))
+            data = reset_aliases(
+                os.path.join(ROOT, ALIASES_FILE), os.path.join(ROOT, ALIASES_EXAMPLE)
+            )
         except AliasError as e:
             messagebox.showerror("Error", str(e))
             return
@@ -201,40 +216,16 @@ class Panel(tk.Tk):
         return os.path.join(ROOT, ".env")
 
     def load_config_ui(self):
-        values = {}
-        try:
-            with open(self._env_path(), encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        k, v = line.split("=", 1)
-                        values[k.strip()] = v.strip()
-        except OSError:
-            pass
+        from panel.config_store import read_env
+
+        values = read_env(self._env_path())
         for key, var in self.cfg_vars.items():
             var.set(values.get(key, ""))
 
     def save_config_ui(self):
-        path = self._env_path()
-        lines, seen = [], set()
-        try:
-            with open(path, encoding="utf-8") as f:
-                old = f.readlines()
-        except OSError:
-            old = []
-        with open(path, "w", encoding="utf-8") as f:
-            for line in old:
-                s = line.strip()
-                if s and not s.startswith("#") and "=" in s:
-                    k = s.split("=", 1)[0].strip()
-                    if k in self.cfg_vars:
-                        f.write(f"{k}={self.cfg_vars[k].get().strip()}\n")
-                        seen.add(k)
-                        continue
-                f.write(line)
-            for key, var in self.cfg_vars.items():
-                if key not in seen:
-                    f.write(f"{key}={var.get().strip()}\n")
+        from panel.config_store import write_env
+
+        write_env(self._env_path(), {k: v.get() for k, v in self.cfg_vars.items()})
         messagebox.showinfo("OK", ".env guardado. Reinicia el bot para aplicar.")
 
 

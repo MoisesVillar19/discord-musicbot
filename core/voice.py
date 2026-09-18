@@ -4,6 +4,7 @@ Toda mutación de voz/cola pasa por el lock del guild (A-05) y por una vía
 única de apagado con guard de generación (A-08): un after_play viejo nunca
 resucita la reproducción tras un /stop o /disconnect.
 """
+
 import asyncio
 import os
 import shutil

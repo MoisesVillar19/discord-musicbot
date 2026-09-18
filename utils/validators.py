@@ -3,6 +3,7 @@
 Clasifica la entrada antes de llamar a yt-dlp para responder rápido y claro
 en vez de dejar que falle la extracción (CB-01, CB-10).
 """
+
 from urllib.parse import urlparse
 
 YOUTUBE_DOMAINS = ("youtube.com", "youtu.be", "music.youtube.com")

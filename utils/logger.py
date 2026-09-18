@@ -1,4 +1,5 @@
 """Logger a archivo + consola (Sprint 2, C-03)."""
+
 import logging
 import os
 

@@ -1,4 +1,5 @@
 """Tests de music/queue.py (lógica pura, sin mocks)."""
+
 import unittest
 
 from music.queue import (
@@ -62,6 +63,11 @@ class QueueTest(unittest.TestCase):
     def test_move_misma_posicion(self):
         self.assertTrue(move_track("g1", 2, 2))
         self.assertEqual(queue_size("g1"), 4)
+
+    def test_move_ida_y_vuelta(self):
+        self.assertTrue(move_track("g1", 1, 4))
+        self.assertTrue(move_track("g1", 4, 1))
+        self.assertEqual([t["title"] for t in peek_queue("g1")], ["A", "B", "C", "D"])
 
     def test_move_rango_invalido(self):
         self.assertFalse(move_track("g1", 1, 9))

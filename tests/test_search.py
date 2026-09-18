@@ -1,4 +1,5 @@
 """Tests de music/search.py con _extract mockeado (sin red)."""
+
 import asyncio
 import unittest
 from unittest.mock import patch
@@ -42,8 +43,9 @@ class SearchTest(unittest.TestCase):
         info = {"entries": [_entry(f"T{i}") for i in range(10)]}
         with patch.object(search, "_extract", return_value=info):
             tracks, total, unav = run(
-                search.search_ytdlp("https://youtube.com/playlist?list=x",
-                                    max_tracks=3, start_index=4)
+                search.search_ytdlp(
+                    "https://youtube.com/playlist?list=x", max_tracks=3, start_index=4
+                )
             )
         self.assertEqual(total, 10)
         self.assertEqual([t["title"] for t in tracks], ["T4", "T5", "T6"])
@@ -52,9 +54,7 @@ class SearchTest(unittest.TestCase):
     def test_playlist_cuenta_no_disponibles(self):
         info = {"entries": [_entry("Ok"), None, {"title": None}]}
         with patch.object(search, "_extract", return_value=info):
-            tracks, total, unav = run(
-                search.search_ytdlp("https://youtube.com/playlist?list=x")
-            )
+            tracks, total, unav = run(search.search_ytdlp("https://youtube.com/playlist?list=x"))
         # {"title": None} -> Untitled pero sin url ni page -> no disponible
         self.assertEqual([t["title"] for t in tracks], ["Ok"])
         self.assertEqual(unav, 2)
@@ -74,13 +74,17 @@ class SearchTest(unittest.TestCase):
     def test_playlist_flat_url_no_reproducible(self):
         # Entradas flat: url es el id (no streamable) -> se descarta,
         # webpage_url se conserva para resolver al reproducir.
-        flat = {"title": "Flat", "url": "abc123", "webpage_url": "http://page/abc",
-                "duration": None, "uploader": None, "thumbnail": None}
+        flat = {
+            "title": "Flat",
+            "url": "abc123",
+            "webpage_url": "http://page/abc",
+            "duration": None,
+            "uploader": None,
+            "thumbnail": None,
+        }
         info = {"entries": [flat]}
         with patch.object(search, "_extract", return_value=info) as m:
-            tracks, total, unav = run(
-                search.search_ytdlp("https://youtube.com/playlist?list=x")
-            )
+            tracks, total, unav = run(search.search_ytdlp("https://youtube.com/playlist?list=x"))
         self.assertEqual(m.call_args[0][1].get("extract_flat"), "in_playlist")
         self.assertEqual(total, 1)
         self.assertIsNone(tracks[0]["url"])
