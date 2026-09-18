@@ -27,7 +27,7 @@ from core.aliases import (  # noqa: E402
 
 LOG_FILE = os.path.join(ROOT, "logs", "bot.log")
 VENV_PYTHON = os.path.join(ROOT, "venv", "Scripts", "python.exe")
-ENV_KEYS = ("DISCORD_TOKEN", "BOT_NAME", "GUILD_ID", "TROLL_CHANCE")
+ENV_KEYS = ("DISCORD_TOKEN", "BOT_NAME", "GUILD_ID", "TROLL_CHANCE", "DJ_ROLE_ID")
 
 BG, BG2, FG, ACCENT = "#1e1e1e", "#2d2d2d", "#e0e0e0", "#4caf50"
 

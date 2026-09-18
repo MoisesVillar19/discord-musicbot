@@ -53,10 +53,12 @@ class FakeMsg:
 class FakeFollowup:
     def __init__(self):
         self.sent = []
+        self.calls = []
         self.msgs = []
 
     async def send(self, content=None, **kwargs):
         self.sent.append(content)
+        self.calls.append(kwargs)
         msg = FakeMsg()
         self.msgs.append(msg)
         return msg
@@ -162,6 +164,31 @@ class HandlersTest(unittest.TestCase):
         inter2 = _interaction(FakeVC(playing=True))
         run(callback("remove")(inter2, posicion=99))
         self.assertIn("inválida", inter2.response.sent[-1])
+
+    def test_skip_sin_rol_dj(self):
+        from unittest.mock import patch
+
+        inter = _interaction(FakeVC(playing=True))
+        with patch.object(botmod, "DJ_ROLE_ID", 999):
+            run(callback("skip")(inter))
+        self.assertIn("rol DJ", inter.followup.sent[-1])
+
+    def test_lyrics_sin_nada(self):
+        inter = _interaction(FakeVC(playing=False))
+        run(callback("lyrics")(inter))
+        self.assertIn("No hay nada", inter.followup.sent[-1])
+
+    def test_lyrics_actual(self):
+        from unittest.mock import AsyncMock, patch
+
+        botmod.voice_mgr.NOW_PLAYING["1"] = _track("Song")
+        try:
+            inter = _interaction(FakeVC(playing=True))
+            with patch("services.lyrics_service.get_lyrics", new=AsyncMock(return_value="l1\nl2")):
+                run(callback("lyrics")(inter))
+            self.assertIsNotNone(inter.followup.calls[-1].get("embed"))
+        finally:
+            botmod.voice_mgr.NOW_PLAYING.pop("1", None)
 
     def test_pick_track(self):
         opts = [_track("X"), _track("Y")]

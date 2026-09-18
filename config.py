@@ -21,6 +21,11 @@ try:
 except ValueError:
     TROLL_CHANCE = 0.05
 
+# Rol DJ (opcional): ID numérico del rol que puede usar comandos sensibles
+# (stop, skip, disconnect, clear, remove, move). Vacío = sin restricción.
+_dj = os.getenv("DJ_ROLE_ID", "").strip()
+DJ_ROLE_ID = int(_dj) if _dj.isdigit() else None
+
 FFMPEG_PATH = "bin/ffmpeg/ffmpeg.exe"
 
 YTDLP_OPTIONS = {

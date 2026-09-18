@@ -94,6 +94,12 @@
   con `TROLL_CHANCE=0` nunca; URLs nunca son emboscadas.
 - `/troll` → menú, elegir suena. `/history` → lista 20 + re-encolar suena fresco.
 
+## CU-12 Lyrics + DJ (S11 B-10, C-07)
+- `/lyrics` sonando Bohemian Rhapsody → letra paginada de Queen.
+- `/lyrics <texto>` y sin nada sonando → mensajes acordes.
+- Con `DJ_ROLE_ID`: `/stop` sin rol → `❌ Necesitas el rol DJ`; con rol → pasa.
+  Sin configurar → todo abierto.
+
 ## Matriz de prueba manual (pre-push de cada sprint)
 
 1. CU-01 texto, CU-02 URL video, CU-03 playlist `start:2 limit:3`.

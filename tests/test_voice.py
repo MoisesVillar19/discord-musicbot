@@ -64,6 +64,28 @@ class UserMessageTest(unittest.TestCase):
         self.assertTrue(isinstance(MusicBotError(), Exception))
 
 
+class CheckDJTest(unittest.TestCase):
+    def test_sin_config_pasa(self):
+        from utils.errors import check_dj
+
+        check_dj(SimpleNamespace(roles=[]), None)  # no lanza
+
+    def test_con_rol_pasa(self):
+        from utils.errors import check_dj
+
+        member = SimpleNamespace(roles=[SimpleNamespace(id=1), SimpleNamespace(id=99)])
+        check_dj(member, 99)  # no lanza
+
+    def test_sin_rol_rechaza(self):
+        from utils.errors import NotDJError, check_dj
+
+        with self.assertRaises(NotDJError):
+            check_dj(SimpleNamespace(roles=[SimpleNamespace(id=1)]), 99)
+        with self.assertRaises(NotDJError):
+            check_dj(SimpleNamespace(), 99)
+        self.assertIn("rol DJ", user_message(NotDJError()))
+
+
 def _track(title, url="http://audio"):
     return {
         "title": title,

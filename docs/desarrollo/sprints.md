@@ -189,6 +189,14 @@ en tu PC, en un VPS o en la nube; y para no "en mi máquina sí funciona".
 Recomendación: seguir local hasta cerrar S9; luego Raspberry u Oracle Free;
 VPS de pago solo si quieres cero mantenimiento.
 
+## Sprint 11 — Lyrics + DJ + logs ✅ HECHO
+- [x] B-10 `/lyrics` (LRCLIB sin key, spike en vivo) + caché + paginado +
+      `/lyrics [consulta]`; alter `/letra`.
+- [x] C-07 `DJ_ROLE_ID`: `NotDJError` + `check_dj` en stop/skip/disconnect/
+      shuffle/remove/clear/move; lectura siempre abierta; en panel y `.env.example`.
+- [x] Logs con rotación (`RotatingFileHandler` 2MB × 5+1).
+- [x] CU-12 + manual. **Hecho cuando:** 97/97 tests, coverage 72%, ruff limpio.
+
 ## Futuro (documentado, sin sprint asignado)
 - `futuro-funciones.md`: B-10 `/lyrics` (spike LRCLIB primero), C-07 permisos
   DJ (`DJ_ROLE_ID`), panel v2 (ajustes, despliegue Pi, perfiles, customtkinter).

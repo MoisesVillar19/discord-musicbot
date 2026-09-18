@@ -74,6 +74,14 @@ quién la pidió. Si no hay nada: `🔇 No hay nada reproduciéndose.`
 - `/history` (alter `/historial`): últimas 20 reproducidas + menú para
   re-encolar (se resuelve audio fresco al sonar).
 
+## /lyrics — rol DJ
+
+- `/lyrics` (vacío = lo que suena) o `/lyrics <canción>`: letra vía LRCLIB
+  (sin key), paginada. Sin letra → `❌ Sin letra disponible`.
+- **Rol DJ** (opcional, `DJ_ROLE_ID` en `.env`): con él configurado, `stop`,
+  `skip`, `disconnect`, `clear`, `remove` y `move` exigen el rol; sin él,
+  todo abierto como antes. Lectura (`queue`, `nowplaying`, …) siempre abierta.
+
 ## /help
 
 Muestra la ayuda corta en el canal.

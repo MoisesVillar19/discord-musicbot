@@ -1,10 +1,8 @@
 # Futuro: funciones pendientes — MusicBot
 
-> **No cambian el bot actual ni son necesarias ahora.** Diseño previo para que,
-> si algún día apetece, se implementen sin adivinar. Orden sugerido: permisos
-> → panel v2 → lyrics (de fácil a spike).
+> B-10 y C-07 ya implementados (Sprint 11). Queda: panel v2.
 
-## B-10 `/lyrics` (spike obligatorio antes de código)
+## B-10 `/lyrics` ✅ HECHO (S11)
 
 **Idea:** `/lyrics` muestra la letra de lo que suena (lee `NOW_PLAYING`);
 `/lyrics <texto>` busca una cualquiera.
@@ -27,7 +25,7 @@
 - `requested_by`/`NOW_PLAYING` ya existen: cero cambios de núcleo.
 - Criterio: CU con 3 canciones conocidas + fallback `❌ Sin letra disponible`.
 
-## C-07 Permisos DJ
+## C-07 Permisos DJ ✅ HECHO (S11)
 
 **Idea:** que solo ciertos roles usen comandos sensibles (`/stop`, `/clear`,
 `/remove`, `/skip`), el resto solo `/play`, `/queue`, `/nowplaying`.

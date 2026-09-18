@@ -32,6 +32,7 @@ CANONICAL_COMMANDS = (
     "move",
     "troll",
     "history",
+    "lyrics",
     "help",
 )
 

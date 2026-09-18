@@ -23,6 +23,7 @@
 | S8 Trolls + historial | 3 modos troll + `/history` replay (B-08, C-08) | ✅ Hecho |
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | ✅ Hecho |
 | S10 Calidad | +tests (unitarios, handlers), ruff, coverage, docker build (T-01…T-04) | ✅ Hecho |
+| S11 Lyrics+DJ | `/lyrics` LRCLIB, `DJ_ROLE_ID`, logs con rotación | ✅ Hecho |
 | Futuro | Detalle en `futuro-funciones.md` y `futuro-hosting-247.md` | 🔬/🔴 |
 
 ## Backlog
@@ -59,7 +60,7 @@
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
 | B-08 | Canciones troll (3 modos) + `/history` | ✅ | A-01 | S8 | Keyword, emboscada con chance, menú; replay fresco |
 | B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | ✅ | A-01 | S7 | Select efímero; voz recién al elegir |
-| B-10 | `/lyrics` (Genius/Musixmatch) | 🔬 | — | Futuro | Spike: auth, límites, ToS antes de prometer |
+| B-10 | `/lyrics` (LRCLIB sin key, caché, paginado) | ✅ | — | S11 | Spike en vivo; alter `/letra` |
 
 ### C. Calidad y ops
 
@@ -71,7 +72,7 @@
 | C-04 | `start_bot.bat` portable (ruta relativa) | ✅ | S1 | Tarea menor |
 | C-05 | `py_compile` + `unittest` en CI (Actions) | ✅ | S9 | Sin FFmpeg ni token (tests mockean) |
 | C-06 | Dockerfile + compose (VPS) | ✅ | S9 | FFmpeg vía apt, no `bin/` |
-| C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
+| C-07 | Permisos DJ (`DJ_ROLE_ID` + `NotDJError`) | ✅ | S11 | Vacío = abierto; lectura siempre libre |
 | C-08 | Historial por guild (`/history` + replay) | ✅ | S8 | 20 últimas, audio fresco |
 | C-09 | Hosting nube 24/7 (decisión, plan ideal futuro) | ✅ | S9 | Ver `futuro-hosting-247.md`; no necesario ahora |
 

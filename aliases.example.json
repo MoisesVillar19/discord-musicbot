@@ -14,5 +14,6 @@
   "move": ["mover"],
   "troll": ["troleo"],
   "history": ["historial"],
+  "lyrics": ["letra"],
   "help": ["ayuda"]
 }

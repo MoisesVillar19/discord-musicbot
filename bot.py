@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from config import TOKEN, FFMPEG_PATH, BOT_NAME, GUILD_ID, TROLL_CHANCE
+from config import TOKEN, FFMPEG_PATH, BOT_NAME, GUILD_ID, TROLL_CHANCE, DJ_ROLE_ID
 from music.queue import (
     get_queue,
     clear_queue,
@@ -74,6 +74,9 @@ async def skip(interaction: discord.Interaction, cantidad: int = 1):
         voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
     except MusicBotError as e:
         return await interaction.followup.send(user_message(e))
+
+    if (dj_msg := _deny_dj(interaction)) is not None:
+        return await interaction.followup.send(dj_msg)
 
     vc = interaction.guild.voice_client
     if not (vc.is_playing() or vc.is_paused()):
@@ -151,6 +154,9 @@ async def stop(interaction: discord.Interaction):
     except MusicBotError as e:
         return await interaction.followup.send(user_message(e))
 
+    if (dj_msg := _deny_dj(interaction)) is not None:
+        return await interaction.followup.send(dj_msg)
+
     msg = await interaction.followup.send("⛔ Deteniendo reproducción...")
 
     vc = interaction.guild.voice_client
@@ -169,6 +175,9 @@ async def disconnect(interaction: discord.Interaction):
         voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
     except MusicBotError as e:
         return await interaction.followup.send(user_message(e))
+
+    if (dj_msg := _deny_dj(interaction)) is not None:
+        return await interaction.followup.send(dj_msg)
 
     vc = interaction.guild.voice_client
     await voice_mgr.stop_playback(str(interaction.guild_id), vc, clear=False)
@@ -353,6 +362,7 @@ async def help(interaction: discord.Interaction):
         "🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola",
         "⛔ /stop — Detiene todo · 👋 /disconnect — Salir",
         "🎭 /troll — Menú troll · 📜 /history — Historial + replay",
+        "🎤 /lyrics — Letra de lo que suena",
     ]
     active = [(c, a) for c, a in ALIASES.items() if a]
     if active:
@@ -416,10 +426,25 @@ async def nowplaying(interaction: discord.Interaction):
     await interaction.response.send_message(embed=now_playing_embed(track), ephemeral=True)
 
 
-def _need_voice(interaction):
+def _need_voice(interaction, dj=False):
     """Valida acceso a la cola; devuelve mensaje de error o None."""
+    from utils.errors import check_dj
+
     try:
         voice_mgr.check_same_voice(interaction.guild.voice_client, interaction.user.voice)
+        if dj:
+            check_dj(interaction.user, DJ_ROLE_ID)
+        return None
+    except MusicBotError as e:
+        return user_message(e)
+
+
+def _deny_dj(interaction):
+    """Mensaje si falta rol DJ, o None. Para handlers con check inline."""
+    from utils.errors import check_dj
+
+    try:
+        check_dj(interaction.user, DJ_ROLE_ID)
         return None
     except MusicBotError as e:
         return user_message(e)
@@ -427,7 +452,7 @@ def _need_voice(interaction):
 
 @bot.tree.command(name="shuffle", description="Mezcla la cola.")
 async def shuffle(interaction: discord.Interaction):
-    err = _need_voice(interaction)
+    err = _need_voice(interaction, dj=True)
     if err:
         return await interaction.response.send_message(err, ephemeral=True)
     if shuffle_queue(str(interaction.guild_id)):
@@ -439,7 +464,7 @@ async def shuffle(interaction: discord.Interaction):
 @bot.tree.command(name="remove", description="Elimina una canción de la cola por su número.")
 @app_commands.describe(posicion="Número de la canción en /queue (empieza en 1)")
 async def remove(interaction: discord.Interaction, posicion: int):
-    err = _need_voice(interaction)
+    err = _need_voice(interaction, dj=True)
     if err:
         return await interaction.response.send_message(err, ephemeral=True)
     track = remove_track(str(interaction.guild_id), posicion)
@@ -454,7 +479,7 @@ async def remove(interaction: discord.Interaction, posicion: int):
 
 @bot.tree.command(name="clear", description="Vacía la cola (sigue sonando la actual).")
 async def clear(interaction: discord.Interaction):
-    err = _need_voice(interaction)
+    err = _need_voice(interaction, dj=True)
     if err:
         return await interaction.response.send_message(err, ephemeral=True)
     clear_queue(str(interaction.guild_id))
@@ -464,7 +489,7 @@ async def clear(interaction: discord.Interaction):
 @bot.tree.command(name="move", description="Mueve una canción a otra posición de la cola.")
 @app_commands.describe(origen="Posición actual", destino="Posición destino")
 async def move(interaction: discord.Interaction, origen: int, destino: int):
-    err = _need_voice(interaction)
+    err = _need_voice(interaction, dj=True)
     if err:
         return await interaction.response.send_message(err, ephemeral=True)
     if move_track(str(interaction.guild_id), origen, destino):
@@ -565,6 +590,59 @@ async def history(interaction: discord.Interaction):
     await interaction.response.send_message(
         "📜 **Historial:**\n" + "\n".join(lines), view=HistView(), ephemeral=True
     )
+
+
+@bot.tree.command(name="lyrics", description="Letra de lo que suena o de una búsqueda.")
+@app_commands.describe(consulta="Vacío = actual. O nombre de canción.")
+async def lyrics(interaction: discord.Interaction, consulta: str | None = None):
+    from services.lyrics_service import get_lyrics, lyric_pages
+
+    await interaction.response.defer(ephemeral=True)
+    if consulta:
+        from music.search import search_many
+
+        options = await search_many(consulta, n=1)
+        if not options:
+            return await interaction.followup.send("❌ Sin resultados.")
+        title = options[0].get("title") or consulta
+        artist = options[0].get("uploader")
+    else:
+        track = voice_mgr.NOW_PLAYING.get(str(interaction.guild_id))
+        if not track:
+            return await interaction.followup.send("🔇 No hay nada reproduciéndose.")
+        title = track.get("title") or ""
+        artist = track.get("uploader")
+
+    text = await get_lyrics(title, artist)
+    if not text:
+        return await interaction.followup.send(f"❌ Sin letra disponible para **{title}**.")
+
+    pages = lyric_pages(text)
+
+    class LyricView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.page = 1
+
+        def _render(self):
+            e = discord.Embed(
+                title=f"🎤 {title}", description=pages[self.page - 1], color=discord.Color.purple()
+            )
+            e.set_footer(text=f"Página {self.page}/{len(pages)}")
+            return e
+
+        @discord.ui.button(label="⬅️", style=discord.ButtonStyle.secondary)
+        async def prev_btn(self, btn, button):
+            self.page = max(1, self.page - 1)
+            await btn.response.edit_message(embed=self._render(), view=self)
+
+        @discord.ui.button(label="➡️", style=discord.ButtonStyle.secondary)
+        async def next_btn(self, btn, button):
+            self.page = min(len(pages), self.page + 1)
+            await btn.response.edit_message(embed=self._render(), view=self)
+
+    view = LyricView()
+    await interaction.followup.send(embed=view._render(), view=view)
 
 
 # --- Alters configurables (Sprint 5, D-03) ---
