@@ -62,7 +62,33 @@ El README anterior era correcto en lo técnico pero inadecuado para `main`:
 | Nombre "DJ Huevito" hardcodeado en `/help` y docs | `BOT_NAME` configurable; repo neutro "MusicBot" |
 | Estructura descrita como "carpetas vacías de reserva" sin plan | Puntero a `arquitectura.md` (quién puebla cada carpeta y cuándo) |
 
-## 5. Conclusión de la auditoría
+## 5. R-01 Revisión de nombres base (Sprint 6)
+
+Veredicto: **los 13 canónicos se quedan en inglés**. Motivos: convención de
+music bots (Groovy/Rythm la fijaron), nombres cortos sin tildes, coinciden con
+tutoriales y con los docs existentes. El español llega por alters sembrados por
+defecto en `aliases.example.json` (el seed los instala solos).
+
+| Canónico | Decisión | Alters ES sembrados | Motivo |
+|---|---|---|---|
+| `/play` | Se queda | `jugar, rolita, pon` | Universal; `jugar` es el chiste interno |
+| `/pause` | Se queda | `pausa` | Idéntico en ES/EN |
+| `/resume` | Se queda | `sigue` | `reanudar` largo y con tilde potencial |
+| `/skip` | Se queda | `salta, siguiente` | Estándar en bots |
+| `/stop` | Se queda | `para` | `detener`/`parar` ambiguos; `para` corto |
+| `/disconnect` | Se queda | `salir` | `leave`/`salir` equivalentes; se mantiene el documentado |
+| `/queue` | Se queda | `cola` | `queue` aparece en todos los manuales |
+| `/nowplaying` | Se queda | `np, sonando` | Largo pero estándar; `np` para uso rápido |
+| `/shuffle` | Se queda | `mezclar` | Término musical estándar |
+| `/remove` | Se queda | `quitar` | `remove N` + validación ya documentados |
+| `/clear` | Se queda | `limpiar` | Corto; `limpiar` para ES |
+| `/move` | Se queda | `mover` | Idéntico en ES/EN |
+| `/help` | Se queda | `ayuda` | Convención Discord |
+
+Regla a futuro: si un canónico se renombra, el nombre viejo queda como alter
+de compatibilidad (no se rompe costumbre).
+
+## 6. Conclusión de la auditoría
 
 - **Nada de los 3 docs se contradice con el código S0** salvo el nombre y la
   estructura plana inicial (ambos históricos, no errores).

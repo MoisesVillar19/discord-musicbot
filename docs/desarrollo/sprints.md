@@ -105,14 +105,18 @@ Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
   a `logs/bot.log` (rotar si crece; hoy `FileHandler` simple). La pestaña 📋
   del panel es entonces el visor principal.
 
-## Sprint 6 — R-01 Revisión de nombres base
+## Sprint 6 — R-01 Revisión de nombres base ✅ HECHO
+Veredicto en `auditoria.md` §5: los 13 canónicos se quedan en inglés
+(convención + cortos + tutoriales); el español llega por alters ES sembrados
+en `aliases.example.json` (el seed los instala solos). Regla futura: renombrar
+= nombre viejo como alter de compatibilidad.
 **Objetivo:** con los alters como red, cada comando queda con su nombre definitivo.
-- [ ] Repasar los 13 canónicos uno por uno ( Claridad, choques con alters, español).
-- [ ] Renombrar donde aplique; el nombre viejo puede quedar como alter de
-      compatibilidad (ej. canónico `/cola`, alter `/queue`, o al revés).
-- [ ] Actualizar `/help`, `docs/manuales/COMANDOS.md`, `aliases.example.json` y
-      justificar cada decisión en `auditoria.md`.
-- **Hecho cuando:** tabla nombre viejo → nuevo + motivo, sin tests rotos.
+- [x] Repasar los 13 canónicos uno por uno (claridad, choques con alters, español).
+- [x] Renombrar donde aplique → veredicto: ninguno; el español va por alters
+      sembrados (`aliases.example.json` con 18 alters ES).
+- [x] Actualizar `/help` (ya dinámico), `docs/manuales/COMANDOS.md`,
+      `aliases.example.json` y justificar en `auditoria.md` §5.
+- **Hecho cuando:** tabla nombre → decisión + motivo (auditoría §5), 51/51 tests.
 
 ## Sprint 7 — Multi-resultados (B-09)
 **Objetivo:** `/play <texto>` muestra 5 opciones con menú select en vez de

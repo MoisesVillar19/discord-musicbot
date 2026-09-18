@@ -18,7 +18,7 @@
 | S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | ✅ Hecho |
 | S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | ✅ Hecho |
 | S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | ✅ Hecho |
-| S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | 🔴 |
+| S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | ✅ Hecho |
 | S7 Multi-resultados | `ytsearch5` + select (B-09) | 🔴 |
 | S8 Trolls + historial | `music/trolls.py` + `/historial` (B-08, C-08) | 🔴 |
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | 🔴 |
@@ -96,7 +96,7 @@
 ### R. Revisión post-sprints
 | ID | Ítem | Estado | Sprint | Notas |
 |---|---|---|---|---|
-| R-01 | Revisión de nombres base canónicos | 🔴 | S6 | Alters como red de compatibilidad; justificar en `auditoria.md` |
+| R-01 | Revisión de nombres base canónicos | ✅ | S6 | Veredicto: se quedan en inglés; ES por alters (auditoría §5)
 
 ## Qué se declara obsoleto (no entra al roadmap)
 

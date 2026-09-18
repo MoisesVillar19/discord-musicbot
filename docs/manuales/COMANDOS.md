@@ -1,6 +1,9 @@
-# Comandos — DJ Huevito
+# Comandos — MusicBot
 
 > Debes estar en un canal de voz para `/play`.
+> Los canónicos están en inglés por convención; cada servidor tiene alters en
+> español sembrados por defecto (`/jugar`→`/play`, `/cola`→`/queue`, …).
+> Ver tu lista activa con `/help`. Nombres revisados en `../desarrollo/auditoria.md` §5.
 
 ## /play
 

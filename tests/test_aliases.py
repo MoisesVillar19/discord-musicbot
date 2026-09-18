@@ -2,6 +2,7 @@
 import unittest
 
 from core.aliases import (
+    ALIASES_EXAMPLE,
     MAX_ALIASES,
     AliasError,
     default_aliases,
@@ -55,6 +56,18 @@ class AliasesTest(unittest.TestCase):
         # validate solo acepta claves canónicas: no hay forma de renombrar la base
         d = validate_aliases({})
         self.assertEqual(set(d), set(default_aliases()))
+
+    def test_ejemplo_del_repo_es_valido(self):
+        import os
+        repo_example = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            ALIASES_EXAMPLE)
+        d = load_aliases(repo_example)
+        total = sum(len(v) for v in d.values())
+        self.assertGreater(total, 0)
+        # Ningún alter supera el máximo ni colisiona con canónicos
+        for canonical, alters in d.items():
+            self.assertLessEqual(len(alters), MAX_ALIASES)
 
     def test_ensure_crea_desde_ejemplo(self):
         import json

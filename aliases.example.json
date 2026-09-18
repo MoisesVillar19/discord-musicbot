@@ -1,15 +1,15 @@
 {
-  "play": ["jugar", "rolita"],
-  "pause": [],
-  "resume": [],
-  "skip": ["salta"],
-  "stop": [],
-  "disconnect": [],
+  "play": ["jugar", "rolita", "pon"],
+  "pause": ["pausa"],
+  "resume": ["sigue"],
+  "skip": ["salta", "siguiente"],
+  "stop": ["para"],
+  "disconnect": ["salir"],
   "queue": ["cola"],
-  "nowplaying": [],
-  "shuffle": [],
-  "remove": [],
-  "clear": [],
-  "move": [],
-  "help": []
+  "nowplaying": ["np", "sonando"],
+  "shuffle": ["mezclar"],
+  "remove": ["quitar"],
+  "clear": ["limpiar"],
+  "move": ["mover"],
+  "help": ["ayuda"]
 }
