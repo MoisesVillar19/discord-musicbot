@@ -26,6 +26,17 @@ except ValueError:
 _dj = os.getenv("DJ_ROLE_ID", "").strip()
 DJ_ROLE_ID = int(_dj) if _dj.isdigit() else None
 
+# Nivel de log (panel v2): DEBUG para depurar, INFO normal.
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").strip().upper() or "INFO"
+if LOG_LEVEL not in ("DEBUG", "INFO", "WARNING", "ERROR"):
+    LOG_LEVEL = "INFO"
+
+# Segundos solo antes de irse si el canal queda vacío (panel v2).
+try:
+    EMPTY_TIMEOUT = max(15, int(os.getenv("EMPTY_TIMEOUT", "120")))
+except ValueError:
+    EMPTY_TIMEOUT = 120
+
 FFMPEG_PATH = "bin/ffmpeg/ffmpeg.exe"
 
 YTDLP_OPTIONS = {

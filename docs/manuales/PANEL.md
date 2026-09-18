@@ -10,12 +10,16 @@ disponible para correr el bot sin panel (headless).
 
 ## Pestañas
 
+- **🏠 Panel:** estado, uptime y reinicios; botones para abrir la carpeta de
+  logs y este manual.
 - **📋 Logs:** últimas 80 líneas de `logs/bot.log`, auto-refresh cada 2 s.
 - **🎭 Alters:** un campo por comando base (coma = varios). Máx 5, minúsculas,
   sin colisionar. Los nombres base no aparecen como editables: no se tocan.
   Guardar escribe `aliases.json` → **reinicia el bot** para aplicar.
 - **⚙️ Config:** `DISCORD_TOKEN` (oculto), `BOT_NAME`, `GUILD_ID`. Guarda en
-  `.env` → reinicia para aplicar.
+  `.env` → reinicia para aplicar. v2 añade `TROLL_CHANCE`, `DJ_ROLE_ID`,
+  `LOG_LEVEL`, `EMPTY_TIMEOUT` con validación al guardar (te dice qué está mal
+  en vez de guardar basura).
 
 ## Botones
 

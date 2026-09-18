@@ -11,7 +11,7 @@ import shutil
 
 import discord
 
-from config import FFMPEG_PATH
+from config import EMPTY_TIMEOUT, FFMPEG_PATH
 from music.queue import clear_queue, get_queue, record_history
 from utils.errors import NotConnectedError, WrongChannelError
 from utils.logger import log
@@ -21,8 +21,6 @@ NOW_PLAYING: dict = {}
 _PLAY_GEN: dict = {}
 _EMPTY_TASKS: dict = {}
 LAST_TEXT: dict = {}
-
-EMPTY_TIMEOUT = 120  # segundos solo antes de irse si el canal queda vacío
 
 
 def get_lock(guild_id: str) -> asyncio.Lock:

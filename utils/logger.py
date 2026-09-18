@@ -12,11 +12,13 @@ LOG_BACKUPS = 5  # bot.log + bot.log.1 ... bot.log.5
 
 def setup_logger(
     name: str = "musicbot",
-    level: int = logging.INFO,
+    level: int | None = None,
     log_dir: str = "logs",
 ) -> logging.Logger:
     global _configured
     logger = logging.getLogger(name)
+    if level is None:
+        level = getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO)
     logger.setLevel(level)
     if _configured:
         return logger

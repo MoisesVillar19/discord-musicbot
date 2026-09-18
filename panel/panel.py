@@ -27,7 +27,15 @@ from core.aliases import (  # noqa: E402
 
 LOG_FILE = os.path.join(ROOT, "logs", "bot.log")
 VENV_PYTHON = os.path.join(ROOT, "venv", "Scripts", "python.exe")
-ENV_KEYS = ("DISCORD_TOKEN", "BOT_NAME", "GUILD_ID", "TROLL_CHANCE", "DJ_ROLE_ID")
+ENV_KEYS = (
+    "DISCORD_TOKEN",
+    "BOT_NAME",
+    "GUILD_ID",
+    "TROLL_CHANCE",
+    "DJ_ROLE_ID",
+    "LOG_LEVEL",
+    "EMPTY_TIMEOUT",
+)
 
 BG, BG2, FG, ACCENT = "#1e1e1e", "#2d2d2d", "#e0e0e0", "#4caf50"
 
@@ -76,6 +84,23 @@ class Panel(tk.Tk):
 
         tabs = ttk.Notebook(self)
         tabs.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+
+        dash = ttk.Frame(tabs, padding=12)
+        tabs.add(dash, text="🏠 Panel")
+        self.uptime = ttk.Label(dash, text="Bot detenido.", font=("Segoe UI", 11))
+        self.uptime.pack(anchor="w", pady=(0, 4))
+        ttk.Label(
+            dash, text="MusicBot · panel local v2 · config en .env", font=("Segoe UI", 9)
+        ).pack(anchor="w", pady=(0, 10))
+        quick = ttk.Frame(dash)
+        quick.pack(fill="x")
+        ttk.Button(quick, text="📂 Abrir carpeta de logs", command=self.open_logs).pack(side="left")
+        ttk.Button(quick, text="📄 Ver manual del panel", command=self.open_manual).pack(
+            side="left", padx=6
+        )
+        ttk.Label(
+            dash, text="Tip: desmarca Consola arriba para modo producción.", font=("Segoe UI", 9)
+        ).pack(anchor="w", pady=(10, 0))
 
         self.log_box = tk.Text(tabs, bg="#111", fg="#cfc", font=("Consolas", 9), state="disabled")
         tabs.add(self.log_box, text="📋 Logs")
@@ -142,6 +167,10 @@ class Panel(tk.Tk):
             kwargs.update(stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         try:
             self.proc = subprocess.Popen([py, os.path.join(ROOT, "bot.py")], **kwargs)
+            import time as _time
+
+            self.started_at = _time.time()
+            self.restarts = getattr(self, "restarts", 0) + 1
         except OSError as e:
             messagebox.showerror("Error", f"No se pudo arrancar:\n{e}")
 
@@ -158,8 +187,34 @@ class Panel(tk.Tk):
         self.status.config(
             text="● Online" if running else "● Offline", foreground=ACCENT if running else "#f44336"
         )
+        if running and getattr(self, "started_at", None):
+            import time as _time
+
+            secs = int(_time.time() - self.started_at)
+            h, rem = divmod(secs, 3600)
+            m, s = divmod(rem, 60)
+            self.uptime.config(
+                text=f"Bot corriendo {h}:{m:02d}:{s:02d} · reinicios: {self.restarts}."
+            )
+        else:
+            self.uptime.config(text="Bot detenido.")
         self._refresh_log()
         self.after(2000, self._tick)
+
+    def open_logs(self):
+        path = os.path.join(ROOT, "logs")
+        os.makedirs(path, exist_ok=True)
+        try:
+            os.startfile(path)  # Windows
+        except (OSError, AttributeError):
+            messagebox.showinfo("Logs", f"Carpeta: {path}")
+
+    def open_manual(self):
+        path = os.path.join(ROOT, "docs", "manuales", "PANEL.md")
+        try:
+            os.startfile(path)  # Windows
+        except (OSError, AttributeError):
+            messagebox.showinfo("Manual", f"Ábrelo en: {path}")
 
     def _refresh_log(self):
         try:
@@ -223,9 +278,14 @@ class Panel(tk.Tk):
             var.set(values.get(key, ""))
 
     def save_config_ui(self):
-        from panel.config_store import write_env
+        from panel.config_store import validate_config, write_env
 
-        write_env(self._env_path(), {k: v.get() for k, v in self.cfg_vars.items()})
+        values = {k: v.get() for k, v in self.cfg_vars.items()}
+        errors = validate_config(values)
+        if errors:
+            detail = "\n".join(f"· {k}: {msg}" for k, msg in errors.items())
+            return messagebox.showerror("Config inválida", detail)
+        write_env(self._env_path(), values)
         messagebox.showinfo("OK", ".env guardado. Reinicia el bot para aplicar.")
 
 

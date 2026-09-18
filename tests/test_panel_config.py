@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 
-from panel.config_store import read_env, write_env
+from panel.config_store import read_env, validate_config, write_env
 
 
 class ConfigStoreTest(unittest.TestCase):
@@ -34,6 +34,31 @@ class ConfigStoreTest(unittest.TestCase):
             path = os.path.join(tmp, ".env")
             write_env(path, {"K": "a=b=c"})
             self.assertEqual(read_env(path)["K"], "a=b=c")
+
+
+class ValidateTest(unittest.TestCase):
+    def test_ok_y_vacios(self):
+        self.assertEqual(validate_config({}), {})
+        self.assertEqual(validate_config({"GUILD_ID": "", "TROLL_CHANCE": "0.5"}), {})
+
+    def test_errores(self):
+        errs = validate_config(
+            {
+                "GUILD_ID": "abc",
+                "DJ_ROLE_ID": "1x",
+                "TROLL_CHANCE": "2",
+                "EMPTY_TIMEOUT": "5",
+                "LOG_LEVEL": "VERBOSE",
+            }
+        )
+        self.assertEqual(
+            set(errs), {"GUILD_ID", "DJ_ROLE_ID", "TROLL_CHANCE", "EMPTY_TIMEOUT", "LOG_LEVEL"}
+        )
+
+    def test_bordes(self):
+        self.assertEqual(validate_config({"TROLL_CHANCE": "0"}), {})
+        self.assertEqual(validate_config({"TROLL_CHANCE": "1"}), {})
+        self.assertEqual(validate_config({"EMPTY_TIMEOUT": "15"}), {})
 
 
 if __name__ == "__main__":

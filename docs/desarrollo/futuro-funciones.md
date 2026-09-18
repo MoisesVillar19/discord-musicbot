@@ -40,23 +40,11 @@
 - Tests con fakes (roles como `SimpleNamespace(id=…)`) + fila en matriz manual.
 - Criterio: sin `DJ_ROLE_ID` todo igual; con él, sin rol → rechazo limpio.
 
-## Panel v2
-
-**Idea:** cuando el panel tkinter se quede corto.
-
-**Mejoras candidatas (en orden de valor):**
-1. **Más ajustes:** `TROLL_CHANCE` ya está; añadir volumen default,
-   `EMPTY_TIMEOUT`, nivel de log (`INFO`/`DEBUG`). Todo vía `.env` + editor.
-2. **Despliegue remoto (Pi):** botón "subir config a la Pi" (SCP de
-   `aliases.json`/`trolls.json`/`.env` + `ssh … compose restart`). Resuelve la
-   fricción documentada en `futuro-hosting-247.md` §5.
-3. **Perfiles múltiples:** un perfil = un token + configs (diseño original
-   D-05). Solo si hay 2º bot real.
-4. **Tema moderno (`customtkinter`):** dependencia nueva; solo si el look
-   tkinter molesta de verdad. Evaluar costo/beneficio entonces.
-
-**Reglas que se mantienen:** un admin, todo local por defecto, comunicación
-por archivos, `panel.bat` como entrada.
+## Panel v2 ✅ HECHO (parcial)
+Implementado: más ajustes (`LOG_LEVEL`, `EMPTY_TIMEOUT` cableados a logger y
+voz), pestaña dashboard (uptime, reinicios, abrir logs/manual), validación de
+config al guardar. Queda a futuro: despliegue remoto a Pi y perfiles múltiples
+(solo si hay 2º bot) y `customtkinter` (solo si el look molesta).
 
 ## Hosting 24/7
 
