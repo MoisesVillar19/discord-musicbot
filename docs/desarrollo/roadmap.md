@@ -54,6 +54,7 @@
 | B-04 | `/shuffle` | ✅ | A-02 | S4 | 1 línea sobre el helper |
 | B-05 | `/remove <n>`, `/clear` | ✅ | A-02 | S4 | Validar rango; mensajes claros |
 | B-06 | `/move <origen> <destino>`, `/play … after:<n>` | ✅ | A-02 | S4 | `after:` es azúcar sobre `move`/insert |
+| B-11 | `/next` (peek) + `/skip [cantidad]` diferenciados | ✅ | A-02 | S6 | Tabla skip/next/remove en manual; alter `siguiente`→`/next` |
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
 | B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | S8 | Mapeo búsqueda→URL fija; bajo valor, divertido |
 | B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | 🔴 | A-01 | S7 | Select menu; moderado |

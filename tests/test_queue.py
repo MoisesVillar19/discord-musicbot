@@ -4,6 +4,7 @@ import unittest
 from music.queue import (
     SONG_QUEUES,
     clear_queue,
+    drop_first,
     get_queue,
     move_track,
     peek_queue,
@@ -79,6 +80,18 @@ class QueueTest(unittest.TestCase):
 
     def test_peek_no_modifica(self):
         peek_queue("g1")
+        self.assertEqual(queue_size("g1"), 4)
+
+    def test_drop_first(self):
+        self.assertEqual(drop_first("g1", 2), 2)
+        self.assertEqual([t["title"] for t in peek_queue("g1")], ["C", "D"])
+
+    def test_drop_mas_que_cola(self):
+        self.assertEqual(drop_first("g1", 99), 4)
+        self.assertEqual(queue_size("g1"), 0)
+
+    def test_drop_cero(self):
+        self.assertEqual(drop_first("g1", 0), 0)
         self.assertEqual(queue_size("g1"), 4)
 
 

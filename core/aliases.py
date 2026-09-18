@@ -16,7 +16,7 @@ ALIASES_EXAMPLE = "aliases.example.json"
 MAX_ALIASES = 5
 
 CANONICAL_COMMANDS = (
-    "play", "pause", "resume", "skip", "stop", "disconnect",
+    "play", "pause", "resume", "skip", "next", "stop", "disconnect",
     "queue", "nowplaying", "shuffle", "remove", "clear", "move", "help",
 )
 

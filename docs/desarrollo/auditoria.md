@@ -88,6 +88,13 @@ defecto en `aliases.example.json` (el seed los instala solos).
 Regla a futuro: si un canónico se renombra, el nombre viejo queda como alter
 de compatibilidad (no se rompe costumbre).
 
+### Adenda S6: `/skip` vs `/next` vs `/remove`
+Duda resuelta con semántica distinta por comando (no más sobrecarga en `/skip`):
+- `/skip [cantidad]` (default 1): corta la actual + descarta cantidad-1 en cola.
+- `/next` (nuevo, solo lectura): muestra la siguiente sin mutar nada.
+- `/remove n`: elimina la #n sin que suene.
+- El alter `siguiente` se mudó de `/skip` a `/next`, donde calza.
+
 ## 6. Conclusión de la auditoría
 
 - **Nada de los 3 docs se contradice con el código S0** salvo el nombre y la

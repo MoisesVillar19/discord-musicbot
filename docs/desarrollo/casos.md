@@ -55,6 +55,13 @@
 - **Esperado:** cada alter ejecuta exactamente la misma lógica que su canónico.
 - **Aceptación S5:** CU-01–CU-07 pasan igual invocados por alter o por canónico.
 
+## CU-09b Skip / Next / Remove (S6 B-11)
+- **Pre:** sonando A, cola [B, C, D].
+- `/next` → muestra B sin cambiar nada (A sigue, cola intacta).
+- `/skip cantidad:2` → suena C (A cortada, B descartada).
+- `/remove posicion:1` → elimina C sin que suene; sigue D.
+- **Esperado:** cada uno muta (o no) exactamente lo de la tabla del manual.
+
 ## Casos borde (todos deben terminar en mensaje, nunca en crash)
 
 | # | Caso | Esperado | S0 |

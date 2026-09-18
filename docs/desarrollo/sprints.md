@@ -118,6 +118,11 @@ en `aliases.example.json` (el seed los instala solos). Regla futura: renombrar
       `aliases.example.json` y justificar en `auditoria.md` §5.
 - **Hecho cuando:** tabla nombre → decisión + motivo (auditoría §5), 51/51 tests.
 
+### Adenda S6: `/skip` vs `/next` vs `/remove` ✅ HECHO
+- `/skip [cantidad]` (helper `drop_first` + test), `/next` peek (nuevo canónico),
+  tabla de diferencias en el manual, alter `siguiente`→`/next`.
+- **Hecho cuando:** 54/54 tests + CU de cada uno en `casos.md`.
+
 ## Sprint 7 — Multi-resultados (B-09)
 **Objetivo:** `/play <texto>` muestra 5 opciones con menú select en vez de
 encolar a ciegas el 1er resultado.

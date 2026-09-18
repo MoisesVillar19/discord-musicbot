@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from config import TOKEN, FFMPEG_PATH, YTDLP_OPTIONS, BOT_NAME, GUILD_ID
-from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track
+from music.queue import get_queue, clear_queue, peek_queue, shuffle_queue, remove_track, move_track, drop_first
 from utils.errors import MusicBotError, user_message
 from utils.logger import log
 from core import voice as voice_mgr
@@ -56,8 +56,9 @@ async def on_voice_state_update(member, before, after):
     await voice_mgr.handle_voice_state_update(bot, member, before, after)
 
 
-@bot.tree.command(name="skip")
-async def skip(interaction: discord.Interaction):
+@bot.tree.command(name="skip", description="Salta la canción actual (opcional: varias).")
+@app_commands.describe(cantidad="Cuántas canciones saltar (default 1)")
+async def skip(interaction: discord.Interaction, cantidad: int = 1):
     await interaction.response.defer(ephemeral=True)
 
     try:
@@ -69,9 +70,25 @@ async def skip(interaction: discord.Interaction):
     if not (vc.is_playing() or vc.is_paused()):
         return await interaction.followup.send("No hay nada reproduciéndose.")
 
+    cantidad = max(1, cantidad)
     async with voice_mgr.get_lock(str(interaction.guild_id)):
+        # La actual la corta vc.stop(); además se descartan cantidad-1 en cola.
+        drop_first(str(interaction.guild_id), cantidad - 1)
         vc.stop()
-    await interaction.followup.send("⏭️ Canción omitida.")
+    msg = "⏭️ Canción omitida." if cantidad == 1 else f"⏭️ {cantidad} canciones omitidas."
+    await interaction.followup.send(msg)
+
+
+@bot.tree.command(name="next", description="Muestra cuál suena después, sin saltar nada.")
+async def next_song(interaction: discord.Interaction):
+    from ui.embeds import track_line
+
+    tracks = peek_queue(str(interaction.guild_id))
+    if not tracks:
+        return await interaction.response.send_message(
+            "🔇 No hay siguiente: se acaba la cola.", ephemeral=True)
+    await interaction.response.send_message(
+        f"⏭ **Siguiente:**\n1. {track_line(tracks[0])}", ephemeral=True)
 
 
 
@@ -223,7 +240,7 @@ async def help(interaction: discord.Interaction):
         "▶ /play <canción> — Reproduce o agrega a la cola",
         "⏸ /pause — Pausa la música",
         "▶ /resume — Reanuda",
-        "⏭ /skip — Salta canción",
+        "⏭ /skip [n] — Salta n canciones · 🔜 /next — Ver cuál sigue",
         "🎶 /queue — Ver cola · 🎧 /nowplaying — Actual",
         "🔀 /shuffle · 🗑️ /remove · ↔️ /move · 🧹 /clear — Cola",
         "⛔ /stop — Detiene todo · 👋 /disconnect — Salir",

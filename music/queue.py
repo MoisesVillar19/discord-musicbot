@@ -29,6 +29,19 @@ def peek_queue(guild_id: str) -> list:
     return list(get_queue(guild_id))
 
 
+def drop_first(guild_id: str, n: int) -> int:
+    """/skip N: descarta las N primeras (la actual la corta vc.stop()).
+    Devuelve cuántas descartó."""
+    q = get_queue(guild_id)
+    dropped = 0
+    for _ in range(max(0, n)):
+        if not q:
+            break
+        q.popleft()
+        dropped += 1
+    return dropped
+
+
 def remove_track(guild_id: str, pos: int):
     """Elimina la canción en posición pos (base 1). Devuelve el Track o None."""
     q = get_queue(guild_id)

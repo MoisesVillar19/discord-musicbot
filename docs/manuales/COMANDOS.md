@@ -47,13 +47,21 @@ quién la pidió. Si no hay nada: `🔇 No hay nada reproduciéndose.`
 - `/clear`: vacía la cola; la canción actual sigue sonando.
 - Requieren estar en el mismo canal que el bot.
 
-## /pause — /resume — /skip — /stop
+## /pause — /resume — /skip — /next — /stop
 
 - `/pause`: pausa lo actual. Si no estás en voz o no hay nada, avisa.
 - `/resume`: reanuda si estaba pausado.
-- `/skip`: corta la canción actual (`vc.stop()`); el `after` dispara la siguiente.
+- `/skip [cantidad]`: corta la actual y avanza N (default 1).
+- `/next`: muestra cuál sigue **sin saltar nada** (solo consulta).
 - `/stop`: limpia la cola (`clear_queue`), detiene y desconecta al bot.
 - `/disconnect`: solo desconecta; la cola se conserva para retomar con `/play`.
+
+### Diferencias: skip vs next vs remove
+| Comando | Corta la actual | Toca la cola | Reproduce algo |
+|---|---|---|---|
+| `/skip [n]` | ✅ | Descarta n-1 en cola | La siguiente |
+| `/next` | ❌ | ❌ (solo lee) | ❌ |
+| `/remove n` | ❌ | Elimina la #n sin sonar | ❌ |
 
 ## /help
 
