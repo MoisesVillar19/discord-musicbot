@@ -19,7 +19,7 @@
 | S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | ✅ Hecho |
 | S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | ✅ Hecho |
 | S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | ✅ Hecho |
-| S7 Multi-resultados | `ytsearch5` + select (B-09) | 🔴 |
+| S7 Multi-resultados | `ytsearch5` + select (B-09) | ✅ Hecho |
 | S8 Trolls + historial | `music/trolls.py` + `/historial` (B-08, C-08) | 🔴 |
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | 🔴 |
 | Futuro | `/lyrics` (spike), permisos DJ, panel v2 | 🔬/🔴 |
@@ -57,7 +57,7 @@
 | B-11 | `/next` (peek) + `/skip [cantidad]` diferenciados | ✅ | A-02 | S6 | Tabla skip/next/remove en manual; alter `siguiente`→`/next` |
 | B-07 | Comandos alias (`/rolita`…) | 🔴 | — | S4/Futuro | Mantener pocos; ver idea en `primeros_pasos.md` |
 | B-08 | Canciones troll (`music/trolls.py`) | 🔴 | A-01 | S8 | Mapeo búsqueda→URL fija; bajo valor, divertido |
-| B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | 🔴 | A-01 | S7 | Select menu; moderado |
+| B-09 | Búsqueda multi-resultado (`ytsearch5` + select) | ✅ | A-01 | S7 | Select efímero; voz recién al elegir |
 | B-10 | `/lyrics` (Genius/Musixmatch) | 🔬 | — | Futuro | Spike: auth, límites, ToS antes de prometer |
 
 ### C. Calidad y ops

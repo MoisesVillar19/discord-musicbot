@@ -132,3 +132,26 @@ async def resolve_stream_url(webpage_url: str) -> tuple[str | None, str | None]:
     if not info:
         return None, None
     return info.get("url"), info.get("title")
+
+
+async def search_many(query: str, n: int = 5) -> list:
+    """Búsqueda de texto con N resultados completos (Sprint 7, B-09).
+
+    Para el menú select de /play. Extracción completa (no flat): cada Track
+    trae url + metadatos listos para encolar.
+    """
+    loop = asyncio.get_running_loop()
+    opts = YTDLP_BASE_OPTS.copy()
+    opts["noplaylist"] = True
+    try:
+        info = await loop.run_in_executor(
+            None, lambda: _extract(f"ytsearch{n}:{query.strip()}", opts))
+    except Exception as e:
+        print(f"[yt-dlp] Error: {e}")
+        return []
+    tracks = []
+    for e in (info or {}).get("entries") or []:
+        t = _track_from_entry(e)
+        if t and (t["url"] or t["webpage_url"]):
+            tracks.append(t)
+    return tracks

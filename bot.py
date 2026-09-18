@@ -184,16 +184,72 @@ async def play(
     start_index = start - 1
 
     # Validar antes de conectarse: URLs no-YouTube se rechazan sin entrar a voz.
-    from utils.validators import UNSUPPORTED_URL, classify, unsupported_message
+    from utils.validators import TEXT, UNSUPPORTED_URL, classify, unsupported_message
 
     if classify(song_query) == UNSUPPORTED_URL:
         await interaction.followup.send(unsupported_message(), ephemeral=True)
         return
 
+    vc = None  # se conecta abajo (URL) o al elegir (menú texto)
+
+    from music.search import search_many, search_ytdlp
+    from utils.validators import TEXT
+    from ui.embeds import format_duration, track_line
+
+    # Texto libre -> menú con 5 opciones (Sprint 7, B-09). Sin entrar a voz aún.
+    if classify(song_query) == TEXT:
+        options = await search_many(song_query, n=5)
+        if not options:
+            await interaction.followup.send("❌ No se encontraron resultados.")
+            return
+
+        class PickView(discord.ui.View):
+            def __init__(self):
+                super().__init__(timeout=60)
+
+            @discord.ui.select(
+                placeholder="🔎 Elige tu canción…",
+                options=[
+                    discord.SelectOption(
+                        label=t.get("title", "Untitled")[:100],
+                        value=str(i),
+                        description=(
+                            f"{t.get('uploader') or 'YouTube'} · "
+                            f"{format_duration(t.get('duration'))}"
+                        )[:100],
+                    )
+                    for i, t in enumerate(options)
+                ],
+            )
+            async def pick(self, sel: discord.Interaction, select):
+                if sel.user.id != interaction.user.id:
+                    return await sel.response.send_message(
+                        "❌ Solo quien pidió puede elegir.", ephemeral=True)
+                if interaction.user.voice is None:
+                    return await sel.response.send_message(
+                        "🎧 Debes estar en un canal de voz.", ephemeral=True)
+                track = options[int(select.values[0])]
+                vc2 = await voice_mgr.ensure_voice(interaction)
+                _enqueue(str(interaction.guild_id),
+                         interaction.user.display_name, [track])
+                await sel.response.edit_message(
+                    content=f"🎵 Agregada: **{track.get('title')}**", view=None)
+                await _maybe_start(interaction, vc2)
+
+            async def on_timeout(self):
+                try:
+                    await interaction.edit_original_response(
+                        content="⌛ Menú expirado. Usa /play de nuevo.", view=None)
+                except Exception:
+                    pass
+
+        lines = [f"{i}. {track_line(t)}" for i, t in enumerate(options, start=1)]
+        await interaction.followup.send(
+            "🔎 **Resultados para:** " + song_query + "\n" + "\n".join(lines),
+            view=PickView(), ephemeral=True)
+        return
+
     vc = await voice_mgr.ensure_voice(interaction)
-
-    from music.search import search_ytdlp
-
     tracks, total, unavailable = await search_ytdlp(song_query, limit, start_index)
 
 
@@ -201,12 +257,7 @@ async def play(
         await interaction.followup.send("❌ No se encontraron resultados.")
         return
 
-    queue = get_queue(str(interaction.guild_id))
-
-    requested_by = interaction.user.display_name
-    for t in tracks:
-        t["requested_by"] = requested_by
-        queue.append(t)
+    _enqueue(str(interaction.guild_id), interaction.user.display_name, tracks)
 
     # 🎁 Mensaje bonus
     if total > 1:
@@ -224,6 +275,20 @@ async def play(
 
     await interaction.followup.send(msg)
 
+    await _maybe_start(interaction, vc)
+
+
+
+def _enqueue(guild_id: str, display_name: str, tracks: list) -> None:
+    """Encola tracks firmados por quien pidió (compartido /play + select)."""
+    queue = get_queue(guild_id)
+    for t in tracks:
+        t["requested_by"] = display_name
+        queue.append(t)
+
+
+async def _maybe_start(interaction, vc) -> None:
+    """Arranca la reproducción si no hay nada sonando."""
     guild_id = str(interaction.guild_id)
     async with voice_mgr.get_lock(guild_id):
         start_now = not vc.is_playing() and not vc.is_paused()

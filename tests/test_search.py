@@ -91,6 +91,17 @@ class SearchTest(unittest.TestCase):
             run(search.search_ytdlp("https://youtu.be/abc"))
         self.assertNotIn("extract_flat", m.call_args[0][1])
 
+    def test_search_many_devuelve_n(self):
+        info = {"entries": [_entry(f"H{i}") for i in range(5)] + [None]}
+        with patch.object(search, "_extract", return_value=info) as m:
+            tracks = run(search.search_many("te quiero", n=5))
+        self.assertTrue(m.call_args[0][0].startswith("ytsearch5:"))
+        self.assertEqual([t["title"] for t in tracks], [f"H{i}" for i in range(5)])
+
+    def test_search_many_error_vacio(self):
+        with patch.object(search, "_extract", side_effect=Exception("x")):
+            self.assertEqual(run(search.search_many("zzz")), [])
+
 
 if __name__ == "__main__":
     unittest.main()

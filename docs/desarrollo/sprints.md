@@ -123,15 +123,17 @@ en `aliases.example.json` (el seed los instala solos). Regla futura: renombrar
   tabla de diferencias en el manual, alter `siguiente`→`/next`.
 - **Hecho cuando:** 54/54 tests + CU de cada uno en `casos.md`.
 
-## Sprint 7 — Multi-resultados (B-09)
+## Sprint 7 — Multi-resultados (B-09) ✅ HECHO
 **Objetivo:** `/play <texto>` muestra 5 opciones con menú select en vez de
 encolar a ciegas el 1er resultado.
-- [ ] `search_ytdlp()` con modo `ytsearch5` (5 entradas completas, no flat).
-- [ ] `ui`: `discord.ui.Select` efímero (timeout 60 s) → encola la elegida.
-- [ ] CU-10 en `casos.md`.
-- **Hecho cuando:** elegir la opción 3 reproduce la 3 (no la 1).
+- [x] `search_many()` con `ytsearch5` (5 entradas completas, no flat) + 2 tests.
+- [x] Select efímero (timeout 60 s, solo el solicitante) → encola la elegida;
+      el bot entra a voz recién al elegir (no al mostrar el menú).
+- [x] Helpers `_enqueue`/`_maybe_start` compartidos entre URL y select.
+- [x] CU-10 en `casos.md` + manual actualizado.
+- **Hecho cuando:** elegir la opción 3 reproduce la 3 (no la 1). 56/56 tests.
 
-## Sprint 8 — Trolls + historial (B-08, C-08)
+## Sprint 8 — Trolls + historial (B-08, C-08) 🔴 SIGUIENTE
 - [ ] `music/trolls.py`: mapa búsqueda→URL fija + test (sin red).
 - [ ] Historial por guild (últimas 20, en memoria): lo escribe `core/voice.py`
       al terminar cada track; `/historial` lo muestra paginado como `/queue`.

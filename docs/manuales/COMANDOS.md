@@ -25,8 +25,10 @@ Ejemplos:
 
 Comportamiento:
 
-- Texto libre → se usa `ytsearch:` y se encola el primer resultado.
+- Texto libre → menú efímero con 5 resultados (autor + duración); eliges uno y
+  recién ahí el bot entra a voz. Expira a los 60 s. Solo quien pidió puede elegir.
 - Playlist → mensaje `📂 Playlist detectada` con agregadas / no disponibles / posición.
+- URL de video → suena exactamente ese video.
 - Si nada se está reproduciendo, empieza de inmediato; si no, queda en cola.
 
 ## /queue
