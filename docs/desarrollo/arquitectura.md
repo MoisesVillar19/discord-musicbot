@@ -24,13 +24,20 @@ bot.py  ── slash handlers (/play, /pause, /resume, /skip, /stop, /queue, /he
                     discord.FFmpegOpusAudio ──▶ canal de voz
 ```
 
-| Módulo | Responsabilidad hoy | Estado |
+| Módulo | Responsabilidad hoy (S12) | Estado |
 |---|---|---|
-| `bot.py` | Comandos slash, `play_next_song`, `after_play`, resolución FFmpeg, validación token | ⚠️ Hace demasiado; objetivo: solo UI |
-| `config.py` | `DISCORD_TOKEN`, `BOT_NAME`, `FFMPEG_PATH`, `YTDLP_OPTIONS` | ✅ Estable, no tocar salvo añadir claves |
-| `music/search.py` | `search_ytdlp()` (URL vs texto, playlists con start/limit, `ignoreerrors`), `resolve_stream_url()` | ✅ Estable; pendiente `extract_flat` (Sprint 3) |
-| `music/queue.py` | `get_queue()`, `clear_queue()`; ítems `(audio_url, title, webpage_url)` con shim de compat 2-tuplas | ✅ Estable; pendiente migrar a `Track` dict (Sprint 1) |
-| `commands/`, `core/`, `services/`, `ui/`, `utils/` | Solo `__init__.py` y stubs vacíos | 🟡 Reserva; se pueblan en Sprints 1–2 |
+| `bot.py` (82 líneas) | Setup + eventos + registro cogs/alters + run | ✅ Delgado; objetivo cumplido |
+| `commands/` | 5 Cogs: `play`, `control`, `queue`, `fun`, `help` | ✅ Poblado en S12 |
+| `core/guards.py` | `@require_voice`, `@require_dj` | ✅ S12 |
+| `core/voice.py` | Única capa de voz (locks, NOW_PLAYING, historial, `maybe_start_playback`) | ✅ |
+| `core/aliases.py` | Alters: carga, validación, registro | ✅ |
+| `music/queue.py` | Cola + historial + `enqueue_tracks` + helpers | ✅ |
+| `music/search.py` | `search_ytdlp`, `search_many`, `resolve_stream_url` | ✅ |
+| `music/trolls.py` | Keyword/emboscada/lista JSON | ✅ |
+| `ui/` | `embeds.py` + `views.py` (selects y paginadores genéricos) | ✅ |
+| `utils/` | errors (+DJ), validators, logger con rotación | ✅ |
+| `services/lyrics_service.py` | LRCLIB + caché | ✅ |
+| `panel/` | tkinter + `config_store.py` testeable | ✅ |
 
 ## 2. Arquitectura objetivo
 

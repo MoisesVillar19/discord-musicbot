@@ -15,6 +15,9 @@ os.environ.setdefault("DISCORD_TOKEN", "test-token")
 import bot as botmod  # noqa: E402
 from music.queue import SONG_QUEUES, get_queue  # noqa: E402
 
+run_sync = asyncio.run
+run_sync(botmod.setup_bot(botmod.bot))
+
 
 def _track(title):
     return {
@@ -117,7 +120,19 @@ def run(coro):
 
 
 def callback(name):
-    return botmod.bot.tree.get_command(name).callback
+    """Callback listo para llamar; resuelve el Cog si hace falta (Sprint 12)."""
+    from core.aliases import get_aliases
+
+    cmd = botmod.bot.tree.get_command(name)
+    binding = cmd.binding
+    if binding is None:
+        for canon, alters in get_aliases().items():
+            if name in alters:
+                binding = botmod.bot.tree.get_command(canon).binding
+                break
+    if binding is None:
+        return cmd.callback
+    return lambda *a, **k: cmd.callback(binding, *a, **k)
 
 
 def tearDownModule():
@@ -169,7 +184,7 @@ class HandlersTest(unittest.TestCase):
         from unittest.mock import patch
 
         inter = _interaction(FakeVC(playing=True))
-        with patch.object(botmod, "DJ_ROLE_ID", 999):
+        with patch("core.guards.DJ_ROLE_ID", 999):
             run(callback("skip")(inter))
         self.assertIn("rol DJ", inter.followup.sent[-1])
 
@@ -184,17 +199,11 @@ class HandlersTest(unittest.TestCase):
         botmod.voice_mgr.NOW_PLAYING["1"] = _track("Song")
         try:
             inter = _interaction(FakeVC(playing=True))
-            with patch("services.lyrics_service.get_lyrics", new=AsyncMock(return_value="l1\nl2")):
+            with patch("commands.fun.get_lyrics", new=AsyncMock(return_value="l1\nl2")):
                 run(callback("lyrics")(inter))
             self.assertIsNotNone(inter.followup.calls[-1].get("embed"))
         finally:
             botmod.voice_mgr.NOW_PLAYING.pop("1", None)
-
-    def test_pick_track(self):
-        opts = [_track("X"), _track("Y")]
-        self.assertEqual(botmod._pick_track(opts, "1")["title"], "Y")
-        self.assertIsNone(botmod._pick_track(opts, "9"))
-        self.assertIsNone(botmod._pick_track(opts, "x"))
 
 
 class FakeChannel:
@@ -228,7 +237,7 @@ class ExtendedHandlersTest(unittest.TestCase):
     def test_pause_otro_canal(self):
         inter = _interaction(FakeVC(playing=True), channel="B")
         run(callback("pause")(inter))
-        self.assertIn("mismo canal", inter.response.sent[-1])
+        self.assertIn("mismo canal", inter.followup.sent[-1])
 
     def test_stop_limpia_y_desconecta(self):
         inter, vc = self._voc(playing=True)
@@ -277,7 +286,7 @@ class ExtendedHandlersTest(unittest.TestCase):
 
         inter, vc = self._voc(playing=False)
         with (
-            patch("music.search.search_ytdlp", new=fake_search),
+            patch("commands.play.search_ytdlp", new=fake_search),
             patch.object(botmod.voice_mgr, "ensure_voice", new=AsyncMock(return_value=vc)),
             patch.object(botmod.voice_mgr, "play_next_song", new=fake_next),
         ):

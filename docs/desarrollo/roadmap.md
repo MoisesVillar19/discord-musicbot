@@ -24,6 +24,7 @@
 | S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | ✅ Hecho |
 | S10 Calidad | +tests (unitarios, handlers), ruff, coverage, docker build (T-01…T-04) | ✅ Hecho |
 | S11 Lyrics+DJ | `/lyrics` LRCLIB, `DJ_ROLE_ID`, logs con rotación | ✅ Hecho |
+| S12 Main delgado | Guards, views genéricas, 5 cogs, `bot.py` 82 líneas | ✅ Hecho |
 | Futuro | Detalle en `futuro-funciones.md` y `futuro-hosting-247.md` | 🔬/🔴 |
 
 ## Backlog

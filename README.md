@@ -40,20 +40,18 @@ Guías completas:
 
 ```
 MusicBot/
-├── bot.py              # Comandos slash + coordinación de reproducción
-├── config.py           # DISCORD_TOKEN, BOT_NAME, FFMPEG_PATH (desde .env)
-├── music/
-│   ├── queue.py        # Cola por servidor
-│   └── search.py       # Búsqueda yt-dlp + resolución de audio
-├── commands/ core/ services/ ui/ utils/  # Se pueblan por sprints (ver desarrollo)
-├── requirements.txt
-├── start_bot.bat       # Bot directo (headless)
-├── panel.bat           # Panel local (start/stop, alters, config, logs)
-├── panel/              # App tkinter del panel
-├── aliases.example.json # Plantilla de alters (los tuyos van en aliases.json local)
-├── trolls.example.json  # Plantilla de trolls (idem)
-├── Dockerfile + compose.yml  # Ops S9 (ver docs/manuales/DOCKER.md)
-├── .github/workflows/ci.yml  # CI: compile + tests por push
+├── bot.py              # Delgado (82): setup + eventos + registro + run
+├── commands/           # 5 Cogs: play, control, queue, fun, help
+├── core/               # voice (única capa voz), aliases, guards
+├── music/              # queue (+historial), search, trolls
+├── ui/                 # embeds + views genéricas
+├── utils/              # errors (+DJ), validators, logger con rotación
+├── services/           # lyrics_service (LRCLIB)
+├── config.py           # .env: token, nombres, IDs, chances, niveles
+├── panel/ + panel.bat  # Panel local tkinter
+├── aliases/trolls.example.json  # Plantillas (los reales van en local)
+├── Dockerfile + compose.yml + .github/  # Ops (ver DOCKER.md)
+├── requirements.txt / requirements-dev.txt / pyproject.toml
 ├── .env.example
 └── docs/
     ├── manuales/       # Instalación y comandos (usuario)

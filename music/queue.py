@@ -23,6 +23,14 @@ def get_history(guild_id: str) -> list:
     return list(HISTORY.get(guild_id, []))
 
 
+def enqueue_tracks(guild_id: str, display_name: str, tracks: list) -> None:
+    """Encola tracks firmados por quien pidió (compartido por /play y menús)."""
+    queue = get_queue(guild_id)
+    for t in tracks:
+        t["requested_by"] = display_name
+        queue.append(t)
+
+
 def get_queue(guild_id: str) -> deque:
     if guild_id not in SONG_QUEUES:
         SONG_QUEUES[guild_id] = deque()

@@ -116,3 +116,32 @@ def reset_aliases(path: str = ALIASES_FILE, example: str = ALIASES_EXAMPLE) -> d
     if os.path.isfile(path):
         os.remove(path)
     return ensure_aliases(path, example)
+
+
+_ALIASES_CACHE: dict = {}
+
+
+def get_aliases() -> dict:
+    """Mapa canónico -> alters registrado al arrancar (lo lee /help)."""
+    return {c: list(a) for c, a in _ALIASES_CACHE.items()}
+
+
+def register_aliases(tree, on_register=None) -> dict:
+    """Registra un slash por alter reutilizando el callback del canónico."""
+    data = ensure_aliases()
+    _ALIASES_CACHE.clear()
+    _ALIASES_CACHE.update(data)
+    for canonical, alters in data.items():
+        base = tree.get_command(canonical)
+        if base is None:
+            continue
+        for alt in alters:
+            if tree.get_command(alt) is not None:
+                continue
+            tree.command(
+                name=alt,
+                description=f"{base.description} (alias de /{canonical})",
+            )(base.callback)
+            if on_register:
+                on_register(alt, canonical)
+    return get_aliases()

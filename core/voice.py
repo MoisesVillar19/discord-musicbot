@@ -98,6 +98,15 @@ async def stop_playback(guild_id: str, voice_client, clear: bool = True) -> None
             log.warning("stop error: %s", e)
 
 
+async def maybe_start_playback(guild_id: str, voice_client, channel, bot_loop) -> bool:
+    """Arranca la reproducción si no hay nada sonando. Devuelve si arrancó."""
+    async with get_lock(guild_id):
+        start_now = not voice_client.is_playing() and not voice_client.is_paused()
+    if start_now:
+        await play_next_song(voice_client, guild_id, channel, bot_loop)
+    return start_now
+
+
 async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None:
     from music.search import resolve_stream_url
 

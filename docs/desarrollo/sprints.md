@@ -197,6 +197,15 @@ VPS de pago solo si quieres cero mantenimiento.
 - [x] Logs con rotación (`RotatingFileHandler` 2MB × 5+1).
 - [x] CU-12 + manual. **Hecho cuando:** 97/97 tests, coverage 72%, ruff limpio.
 
+## Sprint 12 — Adelgazar main ✅ HECHO
+- [x] A: `core/guards.py` (`@require_voice`, `@require_dj`) + 6 tests.
+- [x] B: `ui/views.py` (`EnqueueSelectView`, `PagerView`) + 6 tests;
+      `enqueue_tracks` en `music/queue.py`, `maybe_start_playback` en `core/voice.py`.
+- [x] C: 5 Cogs (`commands/play|control|queue|fun|help.py`); `bot.py` 671→82
+      (setup + eventos + alters + run). Tests adaptados (setup + binding).
+- [x] D: 111/111 tests, ruff limpio, coverage 82%, docs.
+- **Hecho cuando:** `bot.py` ~85 líneas + cero try/except de guards + CI verde.
+
 ## Futuro (documentado, sin sprint asignado)
 - `futuro-funciones.md`: B-10 `/lyrics` (spike LRCLIB primero), C-07 permisos
   DJ (`DJ_ROLE_ID`), panel v2 (ajustes, despliegue Pi, perfiles, customtkinter).
