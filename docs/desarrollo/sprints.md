@@ -204,7 +204,9 @@ VPS de pago solo si quieres cero mantenimiento.
 - [x] C: 5 Cogs (`commands/play|control|queue|fun|help.py`); `bot.py` 671→82
       (setup + eventos + alters + run). Tests adaptados (setup + binding).
 - [x] D: 111/111 tests, ruff limpio, coverage 82%, docs.
-- **Hecho cuando:** `bot.py` ~85 líneas + cero try/except de guards + CI verde.
+- [x] Fix CI: check de `TOKEN` movido de import a runtime (el orden de imports
+      en tests congelaba `TOKEN=None` sin `.env`).
+- **Hecho cuando:** `bot.py` 82 líneas + cero try/except de guards + CI verde.
 
 ## Futuro (documentado, sin sprint asignado)
 - `futuro-funciones.md`: B-10 `/lyrics` (spike LRCLIB primero), C-07 permisos
