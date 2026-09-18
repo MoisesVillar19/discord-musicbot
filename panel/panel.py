@@ -20,6 +20,7 @@ from core.aliases import (  # noqa: E402
     MAX_ALIASES,
     AliasError,
     load_aliases,
+    reset_aliases,
     save_aliases,
 )
 
@@ -62,6 +63,10 @@ class Panel(tk.Tk):
         self.status = ttk.Label(top, text="● Offline", foreground="#f44336",
                                 font=("Segoe UI", 12, "bold"))
         self.status.pack(side="left")
+        # Desarrollo: consola visible. Producción: ocultar (ver manual PANEL).
+        self.show_console = tk.BooleanVar(value=True)
+        ttk.Checkbutton(top, text="Consola", variable=self.show_console).pack(
+            side="right", padx=4)
         for label, cmd in (("▶ Iniciar", self.start_bot),
                            ("⏹ Detener", self.stop_bot),
                            ("↻ Reiniciar", self.restart_bot)):
@@ -91,6 +96,7 @@ class Panel(tk.Tk):
         btns.pack(fill="x", pady=8)
         ttk.Button(btns, text="💾 Guardar alters", command=self.save_aliases_ui).pack(side="left")
         ttk.Button(btns, text="↺ Recargar", command=self.load_aliases_ui).pack(side="left", padx=6)
+        ttk.Button(btns, text="🧹 Restablecer", command=self.reset_aliases_ui).pack(side="left")
         ttk.Label(alias_frame, text="Separa con comas. Vacío = sin alters.",
                   font=("Segoe UI", 9)).pack(anchor="w")
 
@@ -118,10 +124,14 @@ class Panel(tk.Tk):
         if self.proc and self.proc.poll() is None:
             return
         py = VENV_PYTHON if os.path.isfile(VENV_PYTHON) else sys.executable
+        kwargs = {"cwd": ROOT}
+        if self.show_console.get() and os.name == "nt":
+            # Ventana de consola propia: mismo detalle en vivo que start_bot.bat.
+            kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE
+        else:
+            kwargs.update(stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         try:
-            self.proc = subprocess.Popen(
-                [py, os.path.join(ROOT, "bot.py")], cwd=ROOT,
-                stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            self.proc = subprocess.Popen([py, os.path.join(ROOT, "bot.py")], **kwargs)
         except OSError as e:
             messagebox.showerror("Error", f"No se pudo arrancar:\n{e}")
 
@@ -171,6 +181,20 @@ class Panel(tk.Tk):
             messagebox.showerror("Error", str(e))
             return
         messagebox.showinfo("OK", "Alters guardados. Reinicia el bot para aplicar.")
+
+    def reset_aliases_ui(self):
+        if not messagebox.askyesno("Restablecer",
+                                    "Regenerar aliases.json desde el ejemplo? Se pierden tus cambios."):
+            return
+        try:
+            data = reset_aliases(os.path.join(ROOT, ALIASES_FILE),
+                                 os.path.join(ROOT, ALIASES_EXAMPLE))
+        except AliasError as e:
+            messagebox.showerror("Error", str(e))
+            return
+        for cmd, var in self.alias_vars.items():
+            var.set(", ".join(data.get(cmd, [])))
+        messagebox.showinfo("OK", "aliases.json regenerado.")
 
     # ---- config ----
     def _env_path(self):

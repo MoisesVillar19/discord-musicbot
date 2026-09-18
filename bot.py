@@ -345,10 +345,10 @@ async def move(interaction: discord.Interaction, origen: int, destino: int):
 
 # --- Alters configurables (Sprint 5, D-03) ---
 # Cada alter es un slash command propio que reutiliza el callback del canónico.
-from core.aliases import AliasError, load_aliases
+from core.aliases import AliasError, ensure_aliases
 
 try:
-    ALIASES = load_aliases()
+    ALIASES = ensure_aliases()
 except AliasError as e:
     raise RuntimeError(f"Revisa aliases.json: {e}")
 

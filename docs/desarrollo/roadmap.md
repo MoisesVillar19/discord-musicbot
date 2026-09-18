@@ -17,7 +17,7 @@
 | S3 Playlists rápidas | `extract_flat`, validación URLs, JS runtime, límites documentados | ✅ Hecho |
 | S4 Experiencia | `/nowplaying`, cola paginada, `shuffle/remove/move/clear`, embeds ricos | ✅ Hecho |
 | S5 Alters + panel | Alters configurables + panel local tkinter (perfiles, start/stop, logs) | ✅ Hecho |
-| S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | 🔴 Siguiente |
+| S5.1 Seed + consola | `ensure_aliases()`, botón restablecer, consola propia del panel | ✅ Hecho |
 | S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | 🔴 |
 | S7 Multi-resultados | `ytsearch5` + select (B-09) | 🔴 |
 | S8 Trolls + historial | `music/trolls.py` + `/historial` (B-08, C-08) | 🔴 |
@@ -71,7 +71,7 @@
 | C-06 | Dockerfile + compose (VPS) | 🔴 | S9 | FFmpeg vía apt, no `bin/` |
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
 | C-08 | Historial por guild (`/historial`) | 🔴 | S8 | Tras `NOW_PLAYING` |
-| C-09 | Hosting nube 24/7 | 🔴 | S9 | Ver comparativa en `sprints.md` §S9 |
+| C-09 | Hosting nube 24/7 (decisión, plan ideal futuro) | 🔴 | S9 | Ver `futuro-hosting-247.md`; no necesario ahora |
 
 ### D. Alters configurables + panel local (solo admin local, sin web)
 
@@ -90,8 +90,8 @@
 | D-04 | `GUILD_ID` opcional para sync instantáneo en desarrollo | ✅ | D-03 | S5 | Los comandos globales tardan ~1h en propagar |
 | D-05 | Panel tkinter: perfiles, start/stop/restart, editor alters, editor `.env`, logs, re-sync | ✅ | D-03 | S5 | v1 simple: un bot local (perfiles múltiples → futuro); 1 perfil basta para N servidores |
 | D-06 | `panel.bat` + reutilizar `icono.ico` + manual del panel | ✅ | D-05 | S5 | — |
-| D-07 | `ensure_aliases()`: autocrear `aliases.json` + botón restablecer | 🔴 | D-02 | S5.1 | Clonar → correr sin copiar nada |
-| D-08 | Panel abre consola propia del bot + toggle (dev visible, prod oculta) | 🔴 | D-05 | S5.1 | Mismo detalle en vivo que `start_bot.bat` |
+| D-07 | `ensure_aliases()`: autocrear `aliases.json` + botón restablecer | ✅ | D-02 | S5.1 | Clonar → correr sin copiar nada |
+| D-08 | Panel abre consola propia del bot + toggle (dev visible, prod oculta) | ✅ | D-05 | S5.1 | Mismo detalle en vivo que `start_bot.bat` |
 
 ### R. Revisión post-sprints
 | ID | Ítem | Estado | Sprint | Notas |

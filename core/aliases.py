@@ -77,3 +77,29 @@ def save_aliases(data: dict, path: str = ALIASES_FILE) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(cleaned, f, indent=2, ensure_ascii=False)
         f.write("\n")
+
+
+def ensure_aliases(path: str = ALIASES_FILE,
+                   example: str = ALIASES_EXAMPLE) -> dict:
+    """Crea aliases.json desde el ejemplo si falta y lo devuelve validado.
+
+    Así clonar y correr funciona sin copiar nada a mano; tus cambios quedan
+    en local (gitignored). Si ni el ejemplo existe, parte de defaults vacíos.
+    """
+    if not os.path.isfile(path):
+        if os.path.isfile(example):
+            with open(example, encoding="utf-8") as f:
+                seed = f.read()
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(seed)
+        else:
+            save_aliases(default_aliases(), path)
+    return load_aliases(path)
+
+
+def reset_aliases(path: str = ALIASES_FILE,
+                  example: str = ALIASES_EXAMPLE) -> dict:
+    """Regenera aliases.json desde el ejemplo (botón del panel)."""
+    if os.path.isfile(path):
+        os.remove(path)
+    return ensure_aliases(path, example)

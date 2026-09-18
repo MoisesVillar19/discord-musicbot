@@ -56,6 +56,40 @@ class AliasesTest(unittest.TestCase):
         d = validate_aliases({})
         self.assertEqual(set(d), set(default_aliases()))
 
+    def test_ensure_crea_desde_ejemplo(self):
+        import json
+        import os
+        import tempfile
+        from core.aliases import ensure_aliases, reset_aliases
+
+        with tempfile.TemporaryDirectory() as tmp:
+            target = os.path.join(tmp, "aliases.json")
+            example = os.path.join(tmp, "aliases.example.json")
+            with open(example, "w", encoding="utf-8") as f:
+                json.dump({"play": ["jugar"]}, f)
+            d = ensure_aliases(target, example)
+            self.assertEqual(d["play"], ["jugar"])
+            self.assertTrue(os.path.isfile(target))
+            # Segunda vez: respeta lo existente, no pisa
+            d2 = ensure_aliases(target, example)
+            self.assertEqual(d2["play"], ["jugar"])
+            # Reset: regenera
+            with open(target, "w", encoding="utf-8") as f:
+                json.dump({"play": ["otro"]}, f)
+            d3 = reset_aliases(target, example)
+            self.assertEqual(d3["play"], ["jugar"])
+
+    def test_ensure_sin_ejemplo(self):
+        import os
+        import tempfile
+        from core.aliases import ensure_aliases
+
+        with tempfile.TemporaryDirectory() as tmp:
+            target = os.path.join(tmp, "aliases.json")
+            d = ensure_aliases(target, os.path.join(tmp, "nope.json"))
+            self.assertEqual(d["play"], [])
+            self.assertTrue(os.path.isfile(target))
+
 
 if __name__ == "__main__":
     unittest.main()

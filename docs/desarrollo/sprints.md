@@ -86,13 +86,13 @@ Depende de lógica compartida: idealmente cogs (S4), fallback funciones `_do_*`.
 - [ ] D-06 `panel.bat` + `icono.ico` + manual del panel en `docs/manuales/`.
 - **Hecho cuando:** CU-09/CB-11–CB-14 en verde + bot arranca y se opera solo desde el panel.
 
-## Sprint 5.1 — Seed + consola del panel ✅ PLANIFICADO
+## Sprint 5.1 — Seed + consola del panel 🔴 EN CURSO
 **Objetivo:** cero fricción al clonar y consola visible en desarrollo.
 
-- [ ] D-07 `ensure_aliases()`: si falta `aliases.json`, crearlo desde
+- [x] D-07 `ensure_aliases()`: si falta `aliases.json`, crearlo desde
       `aliases.example.json` y seguir; botón "↺ Restablecer" en el panel.
       Test: arrancar sin archivo → se crea válido (CB-15).
-- [ ] D-08 El panel arranca el bot con **consola propia** (`CREATE_NEW_CONSOLE`):
+- [x] D-08 El panel arranca el bot con **consola propia** (`CREATE_NEW_CONSOLE`):
       mismo detalle en vivo que `start_bot.bat` + toggle "mostrar consola".
       Producción = consola oculta, solo `logs/bot.log` (ver política abajo).
 - **Hecho cuando:** clonar → `panel.bat` → Iniciar funciona sin copiar nada;
@@ -132,7 +132,8 @@ encolar a ciegas el 1er resultado.
 Ver explicación larga abajo (§ S9 en detalle).
 - [ ] C-05 GitHub Actions: `py_compile` + `unittest` en cada push/PR.
 - [ ] C-06 `Dockerfile` + `compose.yml` (FFmpeg vía apt, token por env).
-- [ ] C-09 Decidir hosting 24/7 (ver comparativa abajo).
+- [ ] C-09 Decidir hosting 24/7: plan ideal documentado en
+  `futuro-hosting-247.md` (no necesario ahora; local hasta nuevo aviso).
 - **Hecho cuando:** push en verde en Actions + `docker compose up` suena música.
 
 ## S9 en detalle — qué es cada pieza y por qué
