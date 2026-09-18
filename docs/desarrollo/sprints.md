@@ -145,7 +145,13 @@ encolar a ciegas el 1er resultado.
       al terminar cada track; `/historial` lo muestra paginado como `/queue`.
 - **Hecho cuando:** tests de mapeo + historial en verde.
 
-## Sprint 9 — Ops: CI + Docker + nube (C-05, C-06, C-09) 🔴 SIGUIENTE
+## Sprint 9 — Ops: CI + Docker + nube (C-05, C-06, C-09) ✅ HECHO
+- [x] C-05 `.github/workflows/ci.yml`: `py_compile` + `unittest` en 3.11/3.12
+      por push/PR (sin token ni FFmpeg; todo mockeado).
+- [x] C-06 `Dockerfile` (FFmpeg vía apt) + `compose.yml` (token por `env_file`)
+      + `.dockerignore` + `docs/manuales/DOCKER.md`.
+- [x] C-09 Plan ideal en `futuro-hosting-247.md` (local hasta nuevo aviso).
+- **Hecho cuando:** push en verde en Actions + `docker compose up` suena música.
 Ver explicación larga abajo (§ S9 en detalle).
 - [ ] C-05 GitHub Actions: `py_compile` + `unittest` en cada push/PR.
 - [ ] C-06 `Dockerfile` + `compose.yml` (FFmpeg vía apt, token por env).

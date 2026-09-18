@@ -34,6 +34,7 @@ Guías completas:
 - [`docs/manuales/INSTALACION.md`](docs/manuales/INSTALACION.md) — portal de Discord, FFmpeg, problemas comunes.
 - [`docs/manuales/COMANDOS.md`](docs/manuales/COMANDOS.md) — referencia de comandos y notas técnicas.
 - [`docs/manuales/PANEL.md`](docs/manuales/PANEL.md) — panel local y alters.
+- [`docs/manuales/DOCKER.md`](docs/manuales/DOCKER.md) — correr con Docker.
 
 ## 🧱 Estructura
 
@@ -50,6 +51,9 @@ MusicBot/
 ├── panel.bat           # Panel local (start/stop, alters, config, logs)
 ├── panel/              # App tkinter del panel
 ├── aliases.example.json # Plantilla de alters (los tuyos van en aliases.json local)
+├── trolls.example.json  # Plantilla de trolls (idem)
+├── Dockerfile + compose.yml  # Ops S9 (ver docs/manuales/DOCKER.md)
+├── .github/workflows/ci.yml  # CI: compile + tests por push
 ├── .env.example
 └── docs/
     ├── manuales/       # Instalación y comandos (usuario)

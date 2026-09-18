@@ -1,0 +1,8 @@
+# Sprint 9 (C-06): correr idéntico en PC, VPS o Raspberry.
+# El token va en .env (no se copia a la imagen). Ver docs/manuales/DOCKER.md.
+services:
+  musicbot:
+    build: .
+    env_file:
+      - .env
+    restart: unless-stopped

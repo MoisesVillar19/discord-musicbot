@@ -1,0 +1,10 @@
+venv/
+bin/
+.env
+__pycache__/
+*.pyc
+logs/
+.git/
+tests/
+aliases.json
+trolls.json

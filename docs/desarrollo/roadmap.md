@@ -21,7 +21,7 @@
 | S6 Nombres base | R-01: repaso y renombre de canónicos con alters de compatibilidad | ✅ Hecho |
 | S7 Multi-resultados | `ytsearch5` + select (B-09) | ✅ Hecho |
 | S8 Trolls + historial | 3 modos troll + `/history` replay (B-08, C-08) | ✅ Hecho |
-| S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | 🔴 |
+| S9 Ops | CI + Docker + decisión nube (C-05, C-06, C-09) | ✅ Hecho |
 | Futuro | `/lyrics` (spike), permisos DJ, panel v2 | 🔬/🔴 |
 
 ## Backlog
@@ -68,11 +68,11 @@
 | C-02 | Tests `music/search.py` (mock yt-dlp) | ✅ | S1 | Mock `_extract` |
 | C-03 | Logger a archivo (`utils/logger.py`) sustituyendo `print` | ✅ | S2 | Testigos: voz y search |
 | C-04 | `start_bot.bat` portable (ruta relativa) | ✅ | S1 | Tarea menor |
-| C-05 | `py_compile` + `unittest` en CI (Actions) | 🔴 | S9 | Sin FFmpeg ni token (tests mockean) |
-| C-06 | Dockerfile + compose (VPS) | 🔴 | S9 | FFmpeg vía apt, no `bin/` |
+| C-05 | `py_compile` + `unittest` en CI (Actions) | ✅ | S9 | Sin FFmpeg ni token (tests mockean) |
+| C-06 | Dockerfile + compose (VPS) | ✅ | S9 | FFmpeg vía apt, no `bin/` |
 | C-07 | Permisos DJ / roles por comando | 🔴 | Futuro | Tras errores globales |
 | C-08 | Historial por guild (`/history` + replay) | ✅ | S8 | 20 últimas, audio fresco |
-| C-09 | Hosting nube 24/7 (decisión, plan ideal futuro) | 🔴 | S9 | Ver `futuro-hosting-247.md`; no necesario ahora |
+| C-09 | Hosting nube 24/7 (decisión, plan ideal futuro) | ✅ | S9 | Ver `futuro-hosting-247.md`; no necesario ahora |
 
 ### D. Alters configurables + panel local (solo admin local, sin web)
 
