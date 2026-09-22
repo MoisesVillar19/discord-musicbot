@@ -10,6 +10,7 @@ from music.search import search_many, search_ytdlp
 from music.trolls import ensure_trolls
 from services.lyrics_service import get_lyrics, lyric_pages
 from ui.views import EnqueueSelectView, PagerView
+from utils.errors import MusicBotError, user_message
 
 
 class Fun(commands.Cog):
@@ -25,19 +26,21 @@ class Fun(commands.Cog):
             )
 
         async def on_pick(sel: discord.Interaction, index: int, troll: dict):
+            await sel.response.defer(ephemeral=True)
             if interaction.user.voice is None:
-                return await sel.response.send_message(
-                    "🎧 Debes estar en un canal de voz.", ephemeral=True
+                return await sel.edit_original_response(
+                    content="🎧 Debes estar en un canal de voz."
                 )
             tracks, _, _ = await search_ytdlp(troll["url"], 1, 0)
             if not tracks:
-                return await sel.response.send_message(
-                    "❌ No se pudo resolver el troll.", ephemeral=True
-                )
-            vc = await voice_mgr.ensure_voice(interaction)
+                return await sel.edit_original_response(content="❌ No se pudo resolver el troll.")
+            try:
+                vc = await voice_mgr.ensure_voice(interaction)
+            except MusicBotError as e:
+                return await sel.edit_original_response(content=user_message(e))
             enqueue_tracks(str(interaction.guild_id), interaction.user.display_name, tracks)
-            await sel.response.edit_message(
-                content=f"🎭 Troleo en camino: **{tracks[0].get('title')}**", view=None
+            await sel.edit_original_response(
+                content=f"🎭 Troleo en camino: **{tracks[0].get('title')}**"
             )
             await voice_mgr.maybe_start_playback(
                 str(interaction.guild_id), vc, interaction.channel, self.bot.loop

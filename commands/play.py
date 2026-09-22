@@ -11,6 +11,7 @@ from music.search import search_many, search_ytdlp
 from music.trolls import ensure_trolls, match_keyword, roll_ambush
 from ui.embeds import format_duration, track_line
 from ui.views import EnqueueSelectView
+from utils.errors import MusicBotError, user_message
 from utils.validators import TEXT, UNSUPPORTED_URL, classify, unsupported_message
 
 
@@ -73,15 +74,18 @@ class Play(commands.Cog):
                 return
 
             async def on_pick(sel: discord.Interaction, index: int, track: dict):
+                # Ack inmediato: el connect puede tardar y el token expira.
+                await sel.response.defer(ephemeral=True)
                 if interaction.user.voice is None:
-                    return await sel.response.send_message(
-                        "🎧 Debes estar en un canal de voz.", ephemeral=True
+                    return await sel.edit_original_response(
+                        content="🎧 Debes estar en un canal de voz."
                     )
-                vc2 = await voice_mgr.ensure_voice(interaction)
+                try:
+                    vc2 = await voice_mgr.ensure_voice(interaction)
+                except MusicBotError as e:
+                    return await sel.edit_original_response(content=user_message(e))
                 enqueue_tracks(str(interaction.guild_id), interaction.user.display_name, [track])
-                await sel.response.edit_message(
-                    content=f"🎵 Agregada: **{track.get('title')}**", view=None
-                )
+                await sel.edit_original_response(content=f"🎵 Agregada: **{track.get('title')}**")
                 await voice_mgr.maybe_start_playback(
                     str(interaction.guild_id), vc2, interaction.channel, self.bot.loop
                 )

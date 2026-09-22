@@ -78,8 +78,20 @@ Alternativa: doble clic en `start_bot.bat`.
 | `ValueError: too many values to unpack` | Versión vieja del bot | Actualiza: este bug ya está corregido (cola `Track` dict desde Sprint 1) |
 | `No supported JavaScript runtime` (yt-dlp) | Falta runtime JS en la máquina | Instala Node.js LTS (https://nodejs.org) y reintenta |
 | Enlaces de Instagram/TikTok/Facebook | Solo se soporta YouTube | El bot responde `❌ No puedo reproducir este enlace` sin caerse |
+| `Sign in to confirm your age` / `🔞 Salté …` | Video con restricción de edad | Opcional: exporta `cookies.txt` (abajo) o elige otro video |
+| `Failed to connect to voice` / `4017` / timeout al entrar | Firewall/UDP bloqueado, VPN o red inestable | Permite a Python en el firewall, desactiva VPN, reintenta; cambia la región del canal de voz |
 
-## 7. Límites conocidos
+## 7. Cookies de YouTube (opcional, solo local)
+
+1. En tu navegador, con tu sesión de YouTube abierta, exporta las cookies con
+   la extensión "Get cookies.txt LOCALLY" → guarda como `cookies.txt` en la
+   carpeta del bot (al lado de `bot.py`).
+2. El bot la detecta sola y la pasa a yt-dlp: desbloquea videos con
+   restricción de edad.
+3. **Nunca la subas** (está en `.gitignore`). Si caduca (login expirado),
+   re-expórtala.
+
+## 8. Límites conocidos
 
 - `/play` acepta texto, video/shorts de YouTube o playlist; resto de URLs se rechazan.
 - Playlists: `start` (desde qué #) y `limit` (máx 100 por tanda). Las playlists se

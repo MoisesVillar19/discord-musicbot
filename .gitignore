@@ -13,6 +13,8 @@ ENV/
 # Secrets - NUNCA subir el token real
 .env
 *.token
+# Cookies de YouTube (sesión personal, nunca subir)
+cookies.txt
 
 # Alters locales (tus nombres; el repo trae aliases.example.json)
 aliases.json

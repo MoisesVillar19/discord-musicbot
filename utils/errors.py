@@ -21,11 +21,18 @@ class NotDJError(MusicBotError):
     """El usuario no tiene el rol DJ requerido."""
 
 
+class VoiceConnectError(MusicBotError):
+    """No se pudo conectar a voz (firewall/UDP/red)."""
+
+
 USER_MESSAGES = {
     WrongChannelError: "❌ Debes estar en el mismo canal de voz que el bot.",
     NothingPlayingError: "🔇 No hay nada reproduciéndose.",
     NotConnectedError: "⚠️ No estoy en un canal de voz.",
     NotDJError: "❌ Necesitas el rol DJ para este comando.",
+    VoiceConnectError: (
+        "❌ No pude conectarme a tu canal de voz. Revisa firewall/UDP/VPN e inténtalo de nuevo."
+    ),
 }
 
 

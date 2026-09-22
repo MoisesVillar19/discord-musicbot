@@ -13,7 +13,7 @@ import discord
 
 from config import EMPTY_TIMEOUT, FFMPEG_PATH
 from music.queue import clear_queue, get_queue, record_history
-from utils.errors import NotConnectedError, WrongChannelError
+from utils.errors import NotConnectedError, VoiceConnectError, WrongChannelError
 from utils.logger import log
 
 GUILD_LOCKS: dict = {}
@@ -56,14 +56,29 @@ def check_same_voice(voice_client, user_voice) -> None:
 
 
 async def ensure_voice(interaction) -> object:
-    """Conecta (self-deaf) o mueve al bot al canal del usuario. Asume usuario en voz."""
+    """Conecta (self-deaf) o mueve al bot al canal del usuario. Asume usuario en voz.
+
+    Lanza VoiceConnectError si el handshake falla (4017/Timeout): el llamador
+    responde el mensaje amable en vez de colgar 30s la interacción.
+    """
+    import discord as _discord
+
     voice_channel = interaction.user.voice.channel
     vc = interaction.guild.voice_client
-    async with get_lock(str(interaction.guild_id)):
-        if vc is None:
-            vc = await voice_channel.connect(self_deaf=True)
-        elif vc.channel != voice_channel:
-            await vc.move_to(voice_channel)
+    try:
+        async with get_lock(str(interaction.guild_id)):
+            if vc is None:
+                vc = await voice_channel.connect(self_deaf=True)
+            elif vc.channel != voice_channel:
+                await vc.move_to(voice_channel)
+    except (
+        TimeoutError,
+        asyncio.TimeoutError,
+        _discord.errors.ConnectionClosed,
+        _discord.ClientException,
+    ) as e:
+        log.warning("Voice connect falló: %s", e)
+        raise VoiceConnectError() from e
     return vc
 
 
@@ -107,8 +122,21 @@ async def maybe_start_playback(guild_id: str, voice_client, channel, bot_loop) -
     return start_now
 
 
+async def _skip_with_note(voice_client, guild_id, channel, queue, bot_loop, title, note):
+    """Salta el track avisando en el canal y sigue con la cola."""
+    log.warning("Saltando '%s'", title)
+    try:
+        await channel.send(note)
+    except Exception:
+        pass
+    if queue:
+        await play_next_song(voice_client, guild_id, channel, bot_loop)
+    else:
+        await _finish(guild_id, voice_client)
+
+
 async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None:
-    from music.search import resolve_stream_url
+    from music.search import cookies_available, resolve_stream_url
 
     queue = get_queue(guild_id)
     async with get_lock(guild_id):
@@ -121,6 +149,17 @@ async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None
     webpage_url = track.get("webpage_url")
     LAST_TEXT[guild_id] = channel
 
+    if track.get("age_restricted") and not cookies_available():
+        return await _skip_with_note(
+            voice_client,
+            guild_id,
+            channel,
+            queue,
+            bot_loop,
+            title,
+            f"🔞 Salté **{title}** (requiere inicio de sesión en YouTube; ver manual de cookies).",
+        )
+
     if not audio_url and webpage_url:
         audio_url, resolved = await resolve_stream_url(webpage_url)
         if resolved:
@@ -128,16 +167,15 @@ async def play_next_song(voice_client, guild_id: str, channel, bot_loop) -> None
             track["title"] = resolved
 
     if not audio_url:
-        log.warning("Sin URL reproducible para '%s', saltando...", title)
-        try:
-            await channel.send(f"⚠️ Salté **{title}** (no disponible).")
-        except Exception:
-            pass
-        if queue:
-            await play_next_song(voice_client, guild_id, channel, bot_loop)
-        else:
-            await _finish(guild_id, voice_client)
-        return
+        return await _skip_with_note(
+            voice_client,
+            guild_id,
+            channel,
+            queue,
+            bot_loop,
+            title,
+            f"⚠️ Salté **{title}** (no disponible).",
+        )
 
     ffmpeg_options = {
         "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",

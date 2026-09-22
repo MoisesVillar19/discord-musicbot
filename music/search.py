@@ -7,7 +7,9 @@ Soporta:
 
 import yt_dlp
 import asyncio
+import os
 
+from config import COOKIES_FILE
 from utils.validators import YOUTUBE_PLAYLIST, classify
 
 YTDLP_BASE_OPTS = {
@@ -20,6 +22,18 @@ YTDLP_BASE_OPTS = {
     # Necesario para que el texto libre funcione sin prefijo ytsearch:
     "default_search": "ytsearch",
 }
+
+
+def cookies_available() -> bool:
+    """True si hay cookies.txt local (desbloquea videos con edad)."""
+    return bool(COOKIES_FILE) and os.path.isfile(COOKIES_FILE)
+
+
+def _base_opts() -> dict:
+    base = YTDLP_BASE_OPTS.copy()
+    if cookies_available():
+        base["cookiefile"] = COOKIES_FILE
+    return base
 
 
 def _extract(query, opts):
@@ -43,6 +57,7 @@ def _track_from_entry(e: dict, flat: bool = False) -> dict | None:
     if not e:
         return None
     url = None if flat else e.get("url")
+    age_limit = e.get("age_limit") or 0
     return {
         "title": e.get("title") or "Untitled",
         "url": url,  # puede ser None -> se resuelve al reproducir
@@ -51,6 +66,8 @@ def _track_from_entry(e: dict, flat: bool = False) -> dict | None:
         "uploader": e.get("uploader"),
         "thumbnail": e.get("thumbnail"),
         "requested_by": None,  # lo pone /play con el usuario de Discord
+        # Sin cookies, YouTube exige login para age_limit>=18.
+        "age_restricted": age_limit >= 18,
     }
 
 
@@ -61,7 +78,7 @@ async def search_ytdlp(query: str, max_tracks: int = 50, start_index: int = 0):
     - Si es playlist, se aplica start_index + max_tracks.
     """
     loop = asyncio.get_running_loop()
-    opts = YTDLP_BASE_OPTS.copy()
+    opts = _base_opts()
 
     is_url = _is_url(query)
     # Solo las URLs pueden ser playlists. El texto siempre es 1 resultado.
@@ -123,7 +140,7 @@ async def resolve_stream_url(webpage_url: str) -> tuple[str | None, str | None]:
     if not webpage_url:
         return None, None
     loop = asyncio.get_running_loop()
-    opts = YTDLP_BASE_OPTS.copy()
+    opts = _base_opts()
     opts["noplaylist"] = True
     try:
         info = await loop.run_in_executor(None, lambda: _extract(webpage_url, opts))
@@ -142,7 +159,7 @@ async def search_many(query: str, n: int = 5) -> list:
     trae url + metadatos listos para encolar.
     """
     loop = asyncio.get_running_loop()
-    opts = YTDLP_BASE_OPTS.copy()
+    opts = _base_opts()
     opts["noplaylist"] = True
     try:
         info = await loop.run_in_executor(

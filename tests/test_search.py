@@ -90,6 +90,19 @@ class SearchTest(unittest.TestCase):
         self.assertIsNone(tracks[0]["url"])
         self.assertEqual(tracks[0]["webpage_url"], "http://page/abc")
 
+    def test_age_flag_y_cookies(self):
+        from music.search import _track_from_entry, cookies_available
+
+        adult = _track_from_entry(
+            {"title": "X", "url": None, "webpage_url": "http://p", "age_limit": 18}
+        )
+        self.assertTrue(adult["age_restricted"])
+        kid = _track_from_entry({"title": "Y", "url": "u", "webpage_url": "http://p"})
+        self.assertFalse(kid["age_restricted"])
+        with patch.object(search, "COOKIES_FILE", "no-existe-cookies.txt"):
+            self.assertFalse(cookies_available())
+        self.assertEqual(search._base_opts().get("cookiefile", None), None)
+
     def test_video_unico_sin_flat(self):
         with patch.object(search, "_extract", return_value=_entry("V")) as m:
             run(search.search_ytdlp("https://youtu.be/abc"))

@@ -208,6 +208,17 @@ VPS de pago solo si quieres cero mantenimiento.
       en tests congelaba `TOKEN=None` sin `.env`).
 - **Hecho cuando:** `bot.py` 82 líneas + cero try/except de guards + CI verde.
 
+## Sprint 13 — Robustez producción ✅ HECHO
+Del log real: video con edad + handshake 4017 + cascada Unknown interaction.
+- [x] `VoiceConnectError`: `ensure_voice` falla rápido con mensaje amable
+      (firewall/UDP/VPN) en vez de colgar 30 s.
+- [x] Defer-first en los 3 menús (play/troll/history): ack inmediato, trabajo
+      después, `edit_original_response`. Fin de la cascada 10062.
+- [x] Cookies opcionales (`cookies.txt`, gitignored) + flag `age_restricted`:
+      sin cookies se salta con aviso `🔞`, no se rompe la cola.
+- [x] Manual: sección cookies + troubleshooting 4017.
+- **Hecho cuando:** 114/114 tests, ruff limpio, CB-17/CB-18.
+
 ## Futuro (documentado, sin sprint asignado)
 - `futuro-funciones.md`: B-10 `/lyrics` (spike LRCLIB primero), C-07 permisos
   DJ (`DJ_ROLE_ID`), panel v2 (ajustes, despliegue Pi, perfiles, customtkinter).

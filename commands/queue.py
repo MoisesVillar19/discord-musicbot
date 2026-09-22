@@ -16,6 +16,7 @@ from music.queue import (
 )
 from ui.embeds import QUEUE_PER_PAGE, now_playing_embed, queue_page_embed, queue_pages, track_line
 from ui.views import EnqueueSelectView, PagerView
+from utils.errors import MusicBotError, user_message
 
 
 class Queue(commands.Cog):
@@ -109,19 +110,21 @@ class Queue(commands.Cog):
             return await interaction.response.send_message("📜 Historial vacío.", ephemeral=True)
 
         async def on_pick(sel: discord.Interaction, index: int, track: dict):
+            await sel.response.defer(ephemeral=True)
             if interaction.user.voice is None:
-                return await sel.response.send_message(
-                    "🎧 Debes estar en un canal de voz.", ephemeral=True
+                return await sel.edit_original_response(
+                    content="🎧 Debes estar en un canal de voz."
                 )
             fresh = dict(track)
             fresh["url"] = None  # forzar resolución fresca al sonar
-            vc = await voice_mgr.ensure_voice(interaction)
+            try:
+                vc = await voice_mgr.ensure_voice(interaction)
+            except MusicBotError as e:
+                return await sel.edit_original_response(content=user_message(e))
             from music.queue import enqueue_tracks
 
             enqueue_tracks(str(interaction.guild_id), interaction.user.display_name, [fresh])
-            await sel.response.edit_message(
-                content=f"🎵 Re-encolada: **{fresh.get('title')}**", view=None
-            )
+            await sel.edit_original_response(content=f"🎵 Re-encolada: **{fresh.get('title')}**")
             await voice_mgr.maybe_start_playback(
                 str(interaction.guild_id), vc, interaction.channel, self.bot.loop
             )

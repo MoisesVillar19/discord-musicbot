@@ -138,6 +138,13 @@ def run(coro):
     return asyncio.run(coro)
 
 
+def _async_resolve(url, title):
+    async def fake(page):
+        return url, title
+
+    return fake
+
+
 class VoiceOpsTest(unittest.TestCase):
     def setUp(self):
         SONG_QUEUES.clear()
@@ -193,6 +200,41 @@ class VoiceOpsTest(unittest.TestCase):
         run(V.play_next_song(vc, "g", ch, None))
         self.assertEqual(vc.disconnected, 1)
         self.assertFalse(vc.played)
+
+    def test_ensure_voice_fallo_conexion(self):
+        from utils.errors import VoiceConnectError
+
+        class BadChannel:
+            async def connect(self, **kwargs):
+                raise TimeoutError("handshake")
+
+        inter = SimpleNamespace(
+            user=SimpleNamespace(voice=SimpleNamespace(channel=BadChannel())),
+            guild=SimpleNamespace(voice_client=None),
+            guild_id="g",
+        )
+        with self.assertRaises(VoiceConnectError):
+            run(V.ensure_voice(inter))
+        self.assertIn("canal de voz", user_message(VoiceConnectError()))
+
+    def test_age_restricted_salta_con_aviso(self):
+        import music.search as S
+
+        adult = dict(_track("Adult", url=None))
+        adult["webpage_url"] = "http://page/adult"
+        adult["age_restricted"] = True
+        get_queue("g").append(adult)
+        get_queue("g").append(_track("Next"))
+        vc, ch = FakeVC(), FakeChannel()
+        with (
+            patch.object(S, "COOKIES_FILE", "no-existe-cookies.txt"),
+            patch.object(discord, "FFmpegOpusAudio", return_value="SRC"),
+            patch("music.search.resolve_stream_url", new=_async_resolve("http://stream", "Next")),
+        ):
+            run(V.play_next_song(vc, "g", ch, None))
+        notes = [c[0] for c in ch.sent]
+        self.assertTrue(any("🔞" in (n or "") for n in notes))
+        self.assertEqual(vc.played, ["SRC"])  # siguió con la siguiente
 
 
 if __name__ == "__main__":

@@ -26,6 +26,10 @@ except ValueError:
 _dj = os.getenv("DJ_ROLE_ID", "").strip()
 DJ_ROLE_ID = int(_dj) if _dj.isdigit() else None
 
+# Cookies de YouTube (opcional): archivo Netscape exportado del navegador.
+# Permite reproducir videos con restricción de edad. Nunca se sube (gitignored).
+COOKIES_FILE = "cookies.txt"
+
 # Nivel de log (panel v2): DEBUG para depurar, INFO normal.
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").strip().upper() or "INFO"
 if LOG_LEVEL not in ("DEBUG", "INFO", "WARNING", "ERROR"):

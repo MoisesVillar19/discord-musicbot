@@ -82,6 +82,8 @@
 | CB-14 | Arrancar segunda instancia con el mismo token | Segundo proceso no conecta / mensaje claro en el panel | 🔴 (S5 D-05) |
 | CB-15 | Arrancar sin `aliases.json` | Se autocrea desde el ejemplo y el bot sigue (S5.1 D-07) | 🔴 |
 | CB-16 | Consola del panel vs `start_bot.bat` | Mismo detalle en vivo en ambas; al ocultar consola todo sigue en `logs/bot.log` | 🔴 (S5.1 D-08) |
+| CB-17 | Video con restricción de edad | Sin cookies: `🔞 Salté …` y sigue; con `cookies.txt`: suena | ✅ (S13) |
+| CB-18 | Voz inalcanzable (4017/timeout) | `❌ No pude conectarme…` rápido; menús no revientan (defer-first) | ✅ (S13) |
 
 ## CU-10 Multi-resultados (S7 B-09)
 - **Pre:** bot online, usuario en voz.
